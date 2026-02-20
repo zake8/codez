@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>mismodlst</title>
+		<style>
+			{{ pygments_css|safe }}
+		</style>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+		<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	</head>
+	<body>
+		<div class="app">
+			<h2>Available Mistral Models (prompt and completion costs per million tokens)</h2>
+			<ul>
+				{% for model in results %}
+					<li><code>{{ model }}</code></li>
+				{% endfor %}
+			</ul>
+		</div>
+	</body>
+</html>

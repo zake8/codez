@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>grep</title>
+  <style>
+    {{ pygments_css|safe }}
+    body { font-family: monospace; margin: 1em; }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+  </style>
+</head>
+<body>
+  <h1>grep -rn --include=*.py --include=*.html --include=*.js --include=*.css "{{search_string}}"</h1>
+  <pre class="highlight"><code>{{ results|safe }}</code></pre>
+  {% if error %}
+    <div style="color: red; margin-top: 1em;">
+      Error: {{ error|safe }}
+    </div>
+  {% endif %}
+</body>
+</html>

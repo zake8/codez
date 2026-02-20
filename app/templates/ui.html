@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Repo-level Devstral Assistant</title>
+  <style>
+    {{ pygments_css|safe }}
+  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css')|safe }}"> <!-- added safe to try to thwort intermittent 404's -->
+  <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+  <script src="{{ url_for('static', filename='js/ui.js') }}"></script>
+</head>
+<body>
+  <div class="app">
+
+    <!-- HEADER -->
+    <header>
+      <h1>Repo-level Devstral Assistant</h1>
+    </header>
+
+    <form method="POST" action="{{ url_for('ui') }}">
+      <!-- SETTINGS -->      <section class="settings">
+        <details open>
+          <summary>Settings</summary>
+          <br>
+          <button type="submit" name="action" value="refresh_files" formnovalidate>
+            Refresh/Apply Settings
+          </button>
+
+          <hr>
+          <label>
+            <strong>Platform:</strong> 
+            <input type="radio" name="platform_choice" value="mistral" {% if platform_choice == 'mistral' %}checked{% endif %}> Mistral 
+            <input type="radio" name="platform_choice" value="digitalocean" {% if platform_choice == 'digitalocean' %}checked{% endif %}> DigitalOcean 
+          </label>
+          {% if platform_choice == "mistral" %}
+            <label>
+              <a href="{{ url_for('mismodlst') }}" target="_blank">Query Mistral Models</a> ~ 
+              <a href="{{ url_for('mismodcostlst') }}" target="_blank">Query Mistral Models w/ costs</a>
+            </label>
+          {% else %}
+            <label>
+              <a href="{{ url_for('domodlst') }}" target="_blank">Query DigitalOcean Gradient Models</a> ~ 
+              <a href="{{ url_for('dog_info') }}" target="_blank">Model Info</a>
+            </label>
+          {% endif %}
+
+          <label>
+            <strong>Model:</strong>
+            <select name="model">
+              {% if platform_choice == "mistral" %}
+                {% for m in devstral_models %}
+                  <option value="{{ m }}"
+                    {% if m == model %}selected{% endif %}>
+                    {{ m }}
+                  </option>
+                   (default devstral-latest)
+                {% endfor %}
+              {% else %}
+                <!-- platform_choice == "digitalocean" -->
+                {% for m in dog_models %}
+                  <option value="{{ m }}"
+                    {% if m == model %}selected{% endif %}>
+                    {{ m }}
+                  </option>
+                   (default anthropic-claude-opus-4.6)
+                {% endfor %}
+              {% endif %}
+            </select>
+          </label>
+
+          <label>
+            <strong>Temperature:</strong>
+            <input
+              type="range"
+              name="temperature"
+              min="0"
+              max="1"
+              step="0.01"
+              value="{{ temperature|default(0.2) }}"
+              oninput="this.nextElementSibling.value = this.value"
+            >
+            <input
+              type="number"
+              min="0"
+              max="1"
+              step="0.01"
+              value="{{ temperature|default(0.2) }}"
+              oninput="this.previousElementSibling.value = this.value"
+              style="width: 4.5em;"
+            >
+             (default 0.2) (recommended 0.0 to 0.3)
+          </label>
+
+          {% if platform_choice == "mistral" %}
+            <label>
+              <strong>Timeout:</strong> <select name="timeout" id="timeout-select" class="timeout-select">
+                <option value="45" {% if timeout == 45 %}selected{% endif %}>45 seconds</option>
+                <option value="90" {% if timeout == 90 %}selected{% endif %}>90 seconds</option>
+              </select>
+               <span class="timeout-hint">(maybe pick different model)</span>
+            </label>
+          {% endif %}
+
+          <hr>
+          <label>
+            <strong>Local directory:</strong>
+            <input type="text" name="local_dir" placeholder="/path/to/repo" value="{{ local_dir }}">
+            (default . )
+          </label>
+
+          <label>
+            <input type="checkbox" name="use_os_walk" value="1" {% if use_os_walk %}checked{% endif %}> Use os.walk (default cleared)
+          </label>
+
+          <label>
+            <strong>Git repo URL:</strong>
+            <input type="text" name="git_repo_url" placeholder="https://github.com/org/repo" value="{{ git_repo_url }}">
+             <span class="timeout-hint">(if git url provided then local directory is ignored)</span>
+            <br>
+            <label>
+              <input type="checkbox" name="auto_clean_temp" value="1"> Auto clean up temp cloned repo (default cleared)
+            </label>
+          </label>
+
+          <hr>
+          <label>
+            <input
+              type="checkbox"
+              name="use_ripgrep"
+              value="1"
+              {% if use_ripgrep %}checked{% endif %}
+            >
+            <strong>Use ripgrep</strong> symbol & convention discovery (default checked)
+          </label>
+
+          <hr>
+          <div class="file-picker">
+            <strong>Explicitly include files:</strong>
+          </div>
+          <label>
+            <input type="checkbox" name="common_sense_filter" value="1" {% if common_sense_filter %}checked{% endif %}>
+            <strong>Common sense filter</strong> excludes common non-code files (default checked)
+          </label>
+          <label>
+            <input type="checkbox" name="sum_unchecked" value="1" {% if sum_unchecked %}checked{% endif %}>
+            <strong>Summarize unchecked files</strong> (default checked)
+          </label>
+          <div class="file-list">
+            {% macro render_tree(tree, prefix="") %}
+              <ul class="tree">
+                {% set dirs = tree.items()|selectattr('1')|sort %}
+                {% set files = tree.items()|rejectattr('1')|sort %}
+                {% for name, subtree in dirs %}
+                  <li>
+                    <details open>
+                      <summary>{{ name }}/</summary>
+                      {{ render_tree(subtree, prefix + name + "/") }}
+                    </details>
+                  </li>
+                {% endfor %}
+                {% for name, subtree in files %}
+                  <li>
+                    <label class="file-item">
+                      <input type="checkbox"
+                             name="include_files"
+                             value="{{ prefix + name }}"
+                             {% if prefix + name in selected_files %}checked{% endif %}>
+                      {{ name }}
+                    </label>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% endmacro %}
+            {{ render_tree(file_tree) }}
+          </div>
+          <hr>
+          <span style="font-size: smaller;">
+            To have zero prompt blob, leave "Use ripgrep" and "Summarize unchecked files" cleared, 
+            and don't check any files under "Explicitly include files".
+          </span>
+          <br>
+          <label>
+            <input type="checkbox" name="save_responses" value="1" {% if save_responses %}checked{% endif %}> 
+            <strong>Save responses to file</strong> as responses/response_{timestamp}.md (default cleared)
+          </label>
+          <hr>
+          <label>
+            <strong>Search files for:</strong>
+            <input type="text" id="grep_search" placeholder="Search string" maxlength="100" style="width: 200px;">
+            <button type="button" onclick="grepPy()" class="refresh-button" data-local-dir="{{ local_dir }}">
+              grep
+            </button>
+            (opens in a new tab)
+          </label>
+          <hr>
+        </details>
+      </section>
+
+      <!-- CHAT INPUT -->
+      <section class="chat">
+        <div class="response-box">
+          <div class="response-header">One-shot Prompt</div>
+          <textarea
+            name="prompt"
+            placeholder="Ask a one-shot repo-aware dev question..."
+            required
+          >{{ last_prompt if last_prompt else "" }}</textarea>
+          <button type="submit" name="action" value="trigger">
+            Invoke
+          </button>
+          <button type="submit" name="action" value="refill_last_prompt" formnovalidate class="refresh-button">
+            Refill-in Last Prompt
+          </button>
+        </div>
+        <div class="spinner" id="spinner">🌀</div>
+      </section>
+
+      <!-- SYSTEM PROMPT VIEWER -->
+      <section class="context-viewer">
+        <details>
+          <summary>System Prompt</summary>
+          <pre>{{ sys_prompt_text|e }}</pre>
+          <hr>
+          <textarea name="custom_system_prompt" placeholder="Custom system prompt! Use with care.">{{ custom_system_prompt }}</textarea>
+        </details>
+      </section>
+    </form>
+
+    <!-- CONTEXT VIEWER -->
+    <section class="context-viewer">
+      <details>
+        <summary>Prompt Blob</summary>
+        Unable to show at the moment.<br>
+        <!-- 
+        see notes.md
+        <pre>{{ prompt_blob }}</pre>
+        <pre>{{ prompt_blob|e }}</pre> 
+        -->
+      </details>
+    </section>
+
+    <!-- CHAT RESPONSE -->
+      <!-- FLASH MESSAGES -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="flash-messages">
+            {% for category, message in messages %}
+              <div class="flash-message {{ category }}">{{ message }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+    <section class="output">
+      <div class="response-box">
+        <div class="response-header">
+          {{ model }} response 
+          {% if cost %}
+            (prompt plus completion cost = ${{ cost }})
+          {% endif %}
+        </div>
+        <div class="chat-message">
+          {{ rendered_html|safe }}
+        </div>
+        <div class="response-actions">
+          <form method="POST" action="/open_in_editor">
+            <input type="hidden" name="rendered_html" value="{{ rendered_html }}">
+            <button type="submit">Open In Text Editor</button>
+            (only if at filesystem console) 
+          <label>
+            Saving As:
+            <input type="text" name="filename" placeholder="output.md" value="output.md">
+          </label>
+          </form>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
