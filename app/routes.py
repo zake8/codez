@@ -9,7 +9,7 @@ logging.basicConfig(level = logging.INFO,
 from app import app
 from collections import defaultdict
 from dotenv import load_dotenv
-from flask import render_template, request, redirect, url_for, flash, session
+from flask import render_template, request, redirect, url_for, flash  # session
 from gradient import Gradient
 from markdown_it import MarkdownIt
 from pygments.formatters import HtmlFormatter
@@ -32,6 +32,8 @@ GRADIENT_MODEL_ACCESS_KEY = os.environ.get("GRADIENT_MODEL_ACCESS_KEY")
 
 WRITE_PERMALOG = True
 PERMALOG_FN = "./code_assist_perma.log"
+
+LAST_PROMPT_FN = "./last_prompt.txt"
 
 SYSTEM_PROMPT = """Do not introduce new layers, frameworks, or abstractions. 
 Follow existing naming, error-handling, and logging conventions. 
@@ -164,7 +166,12 @@ def ui():
         if action == "trigger": # action == "refresh_files" runs the above only
             user_prompt = request.form.get("prompt", "").strip()
             if user_prompt:
-                session['last_prompt'] = user_prompt
+                try:
+                    with open(LAST_PROMPT_FN, 'w', encoding='utf-8') as _lpf:
+                        _lpf.write(user_prompt)
+                except IOError as e:
+                    logging.error(f"Failed to write last_prompt file: {e}", exc_info=True)
+                    flash(f"Failed to save last prompt: {e}")
                 if use_ripgrep:
                     repo_signals = scan_repo_signals(local_dir)
                 sel_files_blob = ""
@@ -249,7 +256,15 @@ def ui():
             else:
                 rendered_html = "<em>No prompt provided.</em>"
         elif action == "refill_last_prompt":
-            last_prompt = session.get('last_prompt', '')
+            try:
+                with open(LAST_PROMPT_FN, 'r', encoding='utf-8') as _lpf:
+                    last_prompt = _lpf.read()
+            except FileNotFoundError:
+                last_prompt = ''
+            except IOError as e:
+                logging.error(f"Failed to read last_prompt file: {e}", exc_info=True)
+                flash(f"Failed to read last prompt: {e}")
+                last_prompt = ''
     if cloned_repo_path: # Clean up cloned repository if we used one
         if not auto_clean_temp:
             cleanup_cloned_repo(cloned_repo_path)
