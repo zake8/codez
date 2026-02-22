@@ -2,4 +2,4 @@
 Pipfile.lock
 *.log*
 /responses
-
+last_prompt.txt
