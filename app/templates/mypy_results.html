@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>mypy: {{ rel_path }}</title>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h2>mypy results for <code>{{ rel_path }}</code></h2>
+    </header>
+    {% if results %}
+      <pre>{{ results }}</pre>
+    {% else %}
+      <p><em>No output from mypy.</em></p>
+    {% endif %}
+    {% if error %}
+      <pre style="color: red;">{{ error }}</pre>
+    {% endif %}
+  </div>
+</body>
+</html>

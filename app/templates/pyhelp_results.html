@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>pyhelp: {{ query }}</title>
+  <style>
+    body { font-family: monospace; margin: 1em; }
+    pre { white-space: pre-wrap; word-wrap: break-word; }
+    h1 { font-size: 1.1em; }
+  </style>
+</head>
+<body>
+  <h1>help({{ query }})</h1>
+  <pre>{{ result_text|e }}</pre>
+</body>
+</html>

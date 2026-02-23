@@ -193,6 +193,30 @@
             </button>
             (opens in a new tab)
           </label>
+          <label>
+            <strong>Python help for:</strong>
+            <input type="text" id="pyhelp_search" placeholder="e.g. os.path.join" maxlength="120" style="width: 200px;">
+            <button type="button" onclick="pyHelp()" class="refresh-button" data-local-dir="{{ local_dir }}">
+              help()
+            </button>
+            (opens in a new tab)
+          </label>
+          <label>
+            <strong>mypy check file:</strong>
+            <select id="mypy_file_select">
+              <option value="">-- pick a .py file --</option>
+              {% for f in repo_files %}
+                {% if f.endswith('.py') %}
+                  <option value="{{ f }}">{{ f }}</option>
+                {% endif %}
+              {% endfor %}
+            </select>
+            <button type="button" onclick="mypyFile()" class="refresh-button"
+                    id="mypy_run_btn" data-local-dir="{{ local_dir }}">
+              mypy
+            </button>
+            (opens in a new tab)
+          </label>
           <hr>
         </details>
       </section>

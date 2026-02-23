@@ -17,6 +17,8 @@ import datetime
 import os
 import requests
 import subprocess
+import pydoc
+import re as _re
 
 from app.repo_clone_management import clone_repo, cleanup_cloned_repo
 from app.repo_scan import scan_repo_signals, scan_repo_signals, summarize_python_file
@@ -409,6 +411,10 @@ def get_rates(model):
         case "devstral-small-latest":
             input_rate  =  0.10
             output_rate =  0.30
+        case _:
+            logging.warning(f"get_rates: unknown model '{model}', returning zero rates")
+            input_rate  = 0.0
+            output_rate = 0.0
     return input_rate, output_rate
 
 
@@ -504,7 +510,7 @@ def call_devstral(
     """
     if not DEVSTRAL_API_KEY:
         mess = f"DEVSTRAL_API_KEY missing"
-        logging.error(mess)
+        logging.error(mess, exc_info=True)
         flash(mess)
         return mess, 0
     # rough token estimate
@@ -579,7 +585,7 @@ def call_devstral(
         flash(mess)
         return mess, 0
     except Exception as e:
-        mess = f"Error calling Devstral API {e}"
+        mess = f"Devstral API error response\n{response.text}"
         logging.error(mess, exc_info=True)
         flash(mess)
         return mess, 0
@@ -696,5 +702,73 @@ def grep_py():
         )
     except Exception as e:
         flash(f"Error performing grep: {e}", "error")
+        return redirect(url_for("ui"))
+
+
+@app.route("/pyhelp", methods=["GET"])
+def pyhelp():
+    """
+    Run pydoc on a Python name and display results in a new tab.
+    """
+    query = request.args.get("q", "").strip()
+    local_dir = request.args.get("local_dir", ".")
+
+    if not query:
+        flash("No query provided", "error")
+        return redirect(url_for("ui"))
+
+    # Allow only safe identifier characters: letters, digits, underscore, dot
+    if not _re.fullmatch(r'[A-Za-z0-9_.]+', query):
+        flash("Invalid query: only letters, digits, underscores, and dots are allowed", "error")
+        return redirect(url_for("ui"))
+
+    try:
+        result_text = pydoc.render_doc(query, renderer=pydoc.plaintext)
+    except Exception as e:
+        logging.error(f"pydoc failed for query '{query}': {e}", exc_info=True)
+        result_text = f"No help found for '{query}': {e}"
+
+    return render_template(
+        "pyhelp_results.html",
+        query=query,
+        result_text=result_text,
+    )
+
+
+@app.route("/mypy_file", methods=["GET"])
+def mypy_file():
+    """
+    Run mypy on a single Python file and display results in a new tab.
+    """
+    rel_path = request.args.get("f", "").strip()
+    local_dir = request.args.get("local_dir", ".")
+
+    if not rel_path:
+        flash("No file selected", "error")
+        return redirect(url_for("ui"))
+
+    # Safety: only allow .py files, no path traversal
+    if not rel_path.endswith(".py") or ".." in rel_path:
+        flash("Invalid file selection", "error")
+        return redirect(url_for("ui"))
+
+    abs_path = os.path.join(local_dir, rel_path)
+
+    try:
+        result = subprocess.run(
+            ["mypy", abs_path],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        return render_template(
+            "mypy_results.html",
+            rel_path=rel_path,
+            results=result.stdout,
+            error=result.stderr,
+        )
+    except Exception as e:
+        logging.error(f"mypy failed for file '{rel_path}': {e}", exc_info=True)
+        flash(f"Error running mypy: {e}", "error")
         return redirect(url_for("ui"))
 

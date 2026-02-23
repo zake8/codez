@@ -1,11 +1,28 @@
 from dotenv import load_dotenv
 from functools import lru_cache
+import logging
 import os
 from gradient import Gradient
 
 load_dotenv('../.env')
 ##### GRADIENT_MODEL_ACCESS_KEY = os.environ.get("GRADIENT_MODEL_ACCESS_KEY")
 DIGITALOCEAN_API_TOKEN = os.environ.get("DIGITALOCEAN_API_TOKEN")
+
+
+DIGITALOCEAN_FALLBACK_MODELS = [
+    "anthropic-claude-3.5-haiku",
+    "anthropic-claude-4.5-haiku",
+    "anthropic-claude-haiku-4.5",
+    "anthropic-claude-3.5-sonnet",
+    "anthropic-claude-3.7-sonnet",
+    "anthropic-claude-sonnet-4",
+    "anthropic-claude-4.5-sonnet",
+    "anthropic-claude-4.6-sonnet",
+    "anthropic-claude-3-opus",
+    "anthropic-claude-opus-4",
+    "anthropic-claude-4.1-opus",
+    "anthropic-claude-opus-4.5",
+]
 
 
 anthropic_dog_info = """
@@ -49,6 +66,10 @@ def get_digitalocean_models():
     Cached list of available DigitalOcean Gradient models.
     """
     models = get_domodlst()
+    if len(models) == 1 and not models[0].startswith("anthropic"):
+        logging.warning(f"get_digitalocean_models: {models[0]}")
+        logging.warning("get_digitalocean_models: using hardcoded fallback list")
+        return sorted(DIGITALOCEAN_FALLBACK_MODELS)
     return sorted(
         m for m in models
         if "claude" in m.lower()

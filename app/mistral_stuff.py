@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 from flask import render_template
 from functools import lru_cache
+import logging
 import os
 import requests
 
@@ -18,6 +19,17 @@ DEVSTRAL_API_KEY = os.environ.get("DEVSTRAL_API_KEY")
 https://platform-docs-public.pages.dev/api/?utm_source=chatgpt.com
 https://docs.mistral.ai/getting-started/glossary#temperature
 """
+
+DEVSTRAL_FALLBACK_MODELS = [
+    "devstral-small-2507",
+    "devstral-medium-2507",
+    "devstral-2512",
+    "devstral-medium-latest",
+    "devstral-latest",
+    "labs-devstral-small-2512",
+    "devstral-small-latest",
+]
+
 
 def get_mismodlst():
     """ Gets list of Mistral models """
@@ -80,6 +92,10 @@ def get_devstral_models():
     Cached list of available Devstral models.
     """
     models = get_mismodlst()
+    if len(models) == 1 and not models[0].startswith("devstral"):
+        logging.warning(f"get_devstral_models: {models[0]}")
+        logging.warning("get_devstral_models: using hardcoded fallback list")
+        return sorted(DEVSTRAL_FALLBACK_MODELS)
     return sorted(
         m for m in models
         if "devstral" in m.lower()

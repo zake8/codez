@@ -37,7 +37,8 @@ or the DigitalOcean Gradient (Anthropic Claude) API.
 
 git clone https://github.com/your-org/your-repo.git
 cd your-repo
-sudo apt install ripgrep # Install ripgrep (Debian/Ubuntu)
+sudo apt install ripgrep
+sudo apt install mypy 
 pipenv install
 Create a .env file (can rename sample.env)
 
