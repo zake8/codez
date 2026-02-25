@@ -13,7 +13,7 @@ from flask import render_template, request, redirect, url_for, flash  # session
 from gradient import Gradient
 from markdown_it import MarkdownIt
 from pygments.formatters import HtmlFormatter
-from typing import Any
+from typing import Any, Dict
 ##### from markupsafe import escape as markup_escape
 import datetime
 import os
@@ -101,7 +101,7 @@ def ui() -> Any:
     auto_clean_temp = False  # default False
     custom_system_prompt = ""  # should start blank
     timeout = 45  # 45 or 90 # default 45
-    file_tree = {}  # will need to refresh
+    file_tree: Dict[str, Any] = {}  # will need to refresh
     cost = 0.0  # should start zero
     git_repo_url = ""  # should start blank
     last_prompt = ""  # should start blank
@@ -243,19 +243,19 @@ def ui() -> Any:
                     os.makedirs('responses', exist_ok=True)
                     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                     filename = f"responses/response_{timestamp}.md"
-                    with open(filename, 'w', encoding='utf-8') as f:
-                        f.write(user_prompt)
-                        f.write(f"\n\n++++++++++++++++\n\n")
-                        f.write(markdown_text)
+                    with open(filename, 'w', encoding='utf-8') as fh:
+                        fh.write(user_prompt)
+                        fh.write(f"\n\n++++++++++++++++\n\n")
+                        fh.write(markdown_text)
                 if WRITE_PERMALOG:
                     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
                     try:
-                        with open(PERMALOG_FN, 'a', encoding='utf-8') as f:
-                            f.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]\n")
-                            f.write(f"Cost: ${cost:.7f}, Model: {model}, Temperature: {temperature}\n")
-                            f.write(f"Prompt: {user_prompt[:46]}{'...' if len(user_prompt) > 46 else ''}\n")
-                            f.write(f"Response: {markdown_text[:46]}{'...' if len(markdown_text) > 46 else ''}\n")
-                            f.write("-" * 80 + "\n")
+                        with open(PERMALOG_FN, 'a', encoding='utf-8') as fh:
+                            fh.write(f"[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}]\n")
+                            fh.write(f"Cost: ${cost:.7f}, Model: {model}, Temperature: {temperature}\n")
+                            fh.write(f"Prompt: {user_prompt[:46]}{'...' if len(user_prompt) > 46 else ''}\n")
+                            fh.write(f"Response: {markdown_text[:46]}{'...' if len(markdown_text) > 46 else ''}\n")
+                            fh.write("-" * 80 + "\n")
                     except IOError as e:
                         mess = f"Failed to write to permalog: {e}"
                         logging.error(mess, exc_info=True)

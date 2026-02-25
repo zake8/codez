@@ -31,7 +31,7 @@ DEVSTRAL_FALLBACK_MODELS = [
 ]
 
 
-def get_mismodlst():
+def get_mismodlst() -> list[str]:
     """ Gets list of Mistral models """
     MISTRAL_API_BASE = "https://api.mistral.ai/v1"
     if not DEVSTRAL_API_KEY:
@@ -56,7 +56,7 @@ def get_mismodlst():
     return results
 
 
-def get_mismodcostlst():
+def get_mismodcostlst() -> list[tuple[str, float, float]]:
     """Gets list of Mistral models along with per-token costs."""
     MISTRAL_API_BASE = "https://api.mistral.ai/v1"
     results = []
@@ -87,7 +87,7 @@ def get_mismodcostlst():
 
 
 @lru_cache(maxsize=1)
-def get_devstral_models():
+def get_devstral_models() -> list[str]:
     """
     Cached list of available Devstral models.
     """

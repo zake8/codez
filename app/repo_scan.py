@@ -11,7 +11,7 @@ logging.basicConfig(level = logging.INFO,
                     filemode = 'a',
                     format = '%(asctime)s -%(levelname)s - %(message)s')
 from collections import Counter, defaultdict
-from typing import List
+from typing import List, Dict, Tuple, Any
 import ast
 import os
 import re
@@ -19,7 +19,7 @@ import shutil
 import subprocess
 
 
-def _rg(pattern, cwd, max_lines=200):
+def _rg(pattern: str, cwd: str, max_lines: int = 200) -> list[str]:
     """
     Run ripgrep and return lines (bounded).
     """
@@ -38,7 +38,7 @@ def _rg(pattern, cwd, max_lines=200):
         return []
 
 
-def _summarize_symbols(cwd):
+def _summarize_symbols(cwd: str) -> Tuple[Dict[str, int], Dict[str, list[str]]]:
     patterns = {
         "python_functions": r"^\s*def\s+\w+",
         "python_classes": r"^\s*class\s+\w+",
@@ -54,9 +54,9 @@ def _summarize_symbols(cwd):
     return counts, examples
 
 
-def _summarize_call_sites(cwd):
+def _summarize_call_sites(cwd: str) -> Dict[str, int]:
     symbols = ["Auth", "Service", "Repository", "Controller"]
-    hits = defaultdict(int)
+    hits: Dict[str, int] = defaultdict(int)
     for sym in symbols:
         lines = _rg(sym, cwd)
         hits[sym] += len(lines)
@@ -64,8 +64,8 @@ def _summarize_call_sites(cwd):
     return dict(hits)
 
 
-def _summarize_conventions(cwd):
-    conventions = {}
+def _summarize_conventions(cwd: str) -> Dict[str, Any]:
+    conventions: Dict[str, Any] = {}
     # Error handling
     error_lines = (
         _rg(r"raise\s+\w+Error", cwd)
@@ -74,7 +74,7 @@ def _summarize_conventions(cwd):
     conventions["error_handling"] = len(error_lines)
     # Logging
     log_lines = _rg(r"logger\.(debug|info|warning|error|exception)", cwd)
-    levels = Counter()
+    levels: Counter[str] = Counter()
     for line in log_lines:
         m = re.search(r"logger\.(\w+)", line)
         if m:

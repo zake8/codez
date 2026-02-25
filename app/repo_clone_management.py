@@ -35,7 +35,7 @@ def clone_repo(repo_url: str) -> str:
         return ""
 
 
-def cleanup_cloned_repo(repo_path: str):
+def cleanup_cloned_repo(repo_path: str) -> None:
     """
     Remove the cloned repository directory.
     """
