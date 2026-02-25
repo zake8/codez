@@ -13,6 +13,8 @@ from flask import render_template, request, redirect, url_for, flash  # session
 from gradient import Gradient
 from markdown_it import MarkdownIt
 from pygments.formatters import HtmlFormatter
+from typing import Any
+##### from markupsafe import escape as markup_escape
 import datetime
 import os
 import requests
@@ -68,12 +70,12 @@ PYGMENTS_CSS = formatter.get_style_defs(".highlight")
 
 
 @app.route("/")
-def index():
+def index() -> Any:
     return redirect(url_for("ui"))
 
 
 @app.route("/ui", methods=["GET", "POST"])
-def ui():
+def ui() -> Any:
     """
     This is where everything happens for the "one-shot (repo-aware) code assist". 
     Three overall sections to code flow. First GET and POST init everything. 
@@ -89,6 +91,7 @@ def ui():
     model = "anthropic-claude-4.5-sonnet"  # just for first get
     platform_choice = "digitalocean"  # just for first get
     common_sense_filter = True  # default True
+    include_md_txt = False  # default False
     local_dir = "."  # default .
     use_os_walk = False  # default False
     temperature = 0.2  # default 0.2
@@ -155,13 +158,19 @@ def ui():
                 git_repo_url = ""  # Clear if cloning failed
         repo_files = get_repo_files(local_dir=local_dir or ".", use_os_walk=use_os_walk)
         common_sense_filter = request.form.get("common_sense_filter") == "1"
+        include_md_txt = request.form.get("include_md_txt") == "1"
         if common_sense_filter:
             filtered_files = []
             for f in repo_files:
                 if not any(f.endswith(ext) for ext in ['.toc', '.bin', '.env', '.log', '.ico', '.jpg', '.jpeg', '.png', '.gif', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.zip', '.tar', '.gz', '.bz2', '.7z', '.rar']):
                     if not any(f.endswith(ext) for ext in ['Pipfile.lock', 'requirements.txt', 'package-lock.json', 'yarn.lock', 'node_modules']):
                         if not f.startswith('.') and '/.' not in f:
-                            if not f.startswith("response_") and not f.endswith(".md"):
+                            if os.path.basename(f).startswith("response_") and f.endswith(".md"):
+                                pass  # always exclude generated response_*.md files
+                            elif f.endswith(".md") or f.endswith(".txt"):
+                                if include_md_txt:
+                                    filtered_files.append(f)
+                            else:
                                 filtered_files.append(f)
             repo_files = filtered_files
         file_tree = build_file_tree(repo_files)
@@ -285,6 +294,7 @@ def ui():
         selected_files=explicit_files,
         model=model,
         common_sense_filter=common_sense_filter,
+        include_md_txt=include_md_txt,
         devstral_models=devstral_models,
         dog_models=dog_models,
         local_dir=local_dir,
@@ -303,7 +313,7 @@ def ui():
 
 
 @app.route("/open_in_editor", methods=["POST"])
-def open_in_editor():
+def open_in_editor() -> Any:
     """
     Extracts code from rendered_html, saves it to a temporary file, and opens it in the default editor.
     """
@@ -344,7 +354,7 @@ def open_in_editor():
     return redirect(url_for("ui"))
 
 
-def get_rates(model):
+def get_rates(model: str) -> tuple[float, float]:
     """
     $ per 1M Input tokens
     $ per 1M Output tokens
@@ -513,6 +523,11 @@ def call_devstral(
         logging.error(mess, exc_info=True)
         flash(mess)
         return mess, 0
+    if not DEVSTRAL_API_URL:
+        mess = "DEVSTRAL_API_URL missing"
+        logging.error(mess, exc_info=True)
+        flash(mess)
+        return mess, 0
     # rough token estimate
     prompt_tokens_est = len(prompt_blob) // 4  
     if "small" in model.lower(): ### need to dial in numbers here better, also medium?
@@ -591,7 +606,7 @@ def call_devstral(
         return mess, 0
 
 
-def get_repo_files(local_dir=".", use_os_walk=False):
+def get_repo_files(local_dir: str = ".", use_os_walk: bool = False) -> list[str]:
     # Try git first unless explicitly told to use os.walk
     if not use_os_walk:
         try:
@@ -621,10 +636,11 @@ def get_repo_files(local_dir=".", use_os_walk=False):
         return []
 
 
-def build_file_tree(paths):
+def build_file_tree(paths: list[str]) -> defaultdict:  # type: ignore[type-arg]
     """Convert flat list of paths into nested dict for folder tree."""
-    tree = lambda: defaultdict(tree)
-    root = tree()
+    def _tree() -> defaultdict:  # type: ignore[type-arg]
+        return defaultdict(_tree)
+    root = _tree()
     for path in paths:
         parts = path.split("/")
         current = root
@@ -635,7 +651,7 @@ def build_file_tree(paths):
 
 
 @app.route("/mismodlst", methods=["GET"])
-def mismodlst():
+def mismodlst() -> Any:
     """ Opens new page with a list of valid Mistral model IDs available to this API key. """
     results = get_mismodlst()
     return render_template(
@@ -645,7 +661,7 @@ def mismodlst():
 
 
 @app.route("/domodlst", methods=["GET"])
-def domodlst():
+def domodlst() -> Any:
     """ Opens new page with a list of valid DigitalOcean Gradient model IDs available. """
     results = get_domodlst()
     return render_template(
@@ -655,7 +671,7 @@ def domodlst():
 
 
 @app.route("/dog_info", methods=["GET"])
-def dog_info():
+def dog_info() -> Any:
     """ Opens new page with information about Anthropic's model lineup. """
     return render_template(
         "dog_info.html",
@@ -664,7 +680,7 @@ def dog_info():
 
 
 @app.route("/mismodcostlst", methods=["GET"])
-def mismodcostlst():
+def mismodcostlst() -> Any:
     """ Opens new page with a list of valid Mistral model IDs and costs available to this API key. """
     results = get_mismodcostlst()
     return render_template(
@@ -674,7 +690,7 @@ def mismodcostlst():
 
 
 @app.route("/grep_py", methods=["GET"])
-def grep_py():
+def grep_py() -> Any:
     """
     Perform grep search and display results.
     """
@@ -706,7 +722,7 @@ def grep_py():
 
 
 @app.route("/pyhelp", methods=["GET"])
-def pyhelp():
+def pyhelp() -> Any:
     """
     Run pydoc on a Python name and display results in a new tab.
     """
@@ -723,7 +739,7 @@ def pyhelp():
         return redirect(url_for("ui"))
 
     try:
-        result_text = pydoc.render_doc(query, renderer=pydoc.plaintext)
+        result_text = pydoc.render_doc(query, renderer=pydoc.plaintext)  # type: ignore[attr-defined]
     except Exception as e:
         logging.error(f"pydoc failed for query '{query}': {e}", exc_info=True)
         result_text = f"No help found for '{query}': {e}"
@@ -736,39 +752,57 @@ def pyhelp():
 
 
 @app.route("/mypy_file", methods=["GET"])
-def mypy_file():
+def mypy_file() -> Any:
     """
-    Run mypy on a single Python file and display results in a new tab.
+    Run mypy on a single Python file or the whole repo (f=.) and display results in a new tab.
+    Accepts optional repeated mypy_flags query params.
     """
     rel_path = request.args.get("f", "").strip()
     local_dir = request.args.get("local_dir", ".")
+    mypy_flags = request.args.getlist("mypy_flags")
 
     if not rel_path:
         flash("No file selected", "error")
         return redirect(url_for("ui"))
 
-    # Safety: only allow .py files, no path traversal
-    if not rel_path.endswith(".py") or ".." in rel_path:
-        flash("Invalid file selection", "error")
-        return redirect(url_for("ui"))
+    # Whitelist allowed flags to prevent injection
+    allowed_flags = {
+        "--ignore-missing-imports",
+        "--strict",
+        "--check-untyped-defs",
+        "--show-error-codes",
+    }
+    safe_flags = [f for f in mypy_flags if f in allowed_flags]
 
-    abs_path = os.path.join(local_dir, rel_path)
+    if rel_path == ".":
+        # Run mypy on the whole repo directory
+        cmd = ["mypy", "."] + safe_flags
+        display_target = ". (whole repo)"
+    else:
+        # Safety: only allow .py files, no path traversal
+        if not rel_path.endswith(".py") or ".." in rel_path:
+            flash("Invalid file selection", "error")
+            return redirect(url_for("ui"))
+        abs_path = os.path.join(local_dir, rel_path)
+        cmd = ["mypy", abs_path] + safe_flags
+        display_target = rel_path
 
     try:
         result = subprocess.run(
-            ["mypy", abs_path],
+            cmd,
+            cwd=local_dir,
             capture_output=True,
             text=True,
             check=False,
         )
         return render_template(
             "mypy_results.html",
-            rel_path=rel_path,
+            rel_path=display_target,
             results=result.stdout,
             error=result.stderr,
         )
     except Exception as e:
-        logging.error(f"mypy failed for file '{rel_path}': {e}", exc_info=True)
+        logging.error(f"mypy failed for '{display_target}': {e}", exc_info=True)
         flash(f"Error running mypy: {e}", "error")
         return redirect(url_for("ui"))
 

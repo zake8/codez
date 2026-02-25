@@ -46,7 +46,7 @@ anthropic_dog_info = """
 """
 
 
-def get_domodlst():
+def get_domodlst() -> list[str]:
     """Gets list of DigitalOcean Gradient models"""
     if not DIGITALOCEAN_API_TOKEN:  ### should do this check elsewhere
         return ["DIGITALOCEAN_API_TOKEN not set"]
@@ -61,7 +61,7 @@ def get_domodlst():
 
 
 @lru_cache(maxsize=1)
-def get_digitalocean_models():
+def get_digitalocean_models() -> list[str]:
     """
     Cached list of available DigitalOcean Gradient models.
     """

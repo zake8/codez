@@ -143,6 +143,10 @@
             <strong>Common sense filter</strong> excludes common non-code files (default checked)
           </label>
           <label>
+            <input type="checkbox" name="include_md_txt" value="1" {% if include_md_txt %}checked{% endif %}>
+            Include .md / .txt files in file list (default cleared)
+          </label>
+          <label>
             <input type="checkbox" name="sum_unchecked" value="1" {% if sum_unchecked %}checked{% endif %}>
             <strong>Summarize unchecked files</strong> (default checked)
           </label>
@@ -203,8 +207,9 @@
           </label>
           <label>
             <strong>mypy check file:</strong>
-            <select id="mypy_file_select">
-              <option value="">-- pick a .py file --</option>
+            <select id="mypy_file_select" class="mypy-file-select">
+              <option value="" disabled selected class="mypy-hint">*.py</option>
+              <option value=".">. (whole repo)</option>
               {% for f in repo_files %}
                 {% if f.endswith('.py') %}
                   <option value="{{ f }}">{{ f }}</option>
@@ -216,6 +221,22 @@
               mypy
             </button>
             (opens in a new tab)
+            <br>
+            <strong>mypy flags:</strong>
+            <span class="mypy-flags">
+              <label class="mypy-flag-item">
+                <input type="checkbox" class="mypy-flag" value="--ignore-missing-imports"> --ignore-missing-imports
+              </label>
+              <label class="mypy-flag-item">
+                <input type="checkbox" class="mypy-flag" value="--strict"> --strict
+              </label>
+              <label class="mypy-flag-item">
+                <input type="checkbox" class="mypy-flag" value="--check-untyped-defs"> --check-untyped-defs
+              </label>
+              <label class="mypy-flag-item">
+                <input type="checkbox" class="mypy-flag" value="--show-error-codes"> --show-error-codes
+              </label>
+            </span>
           </label>
           <hr>
         </details>
@@ -230,14 +251,14 @@
             placeholder="Ask a one-shot repo-aware dev question..."
             required
           >{{ last_prompt if last_prompt else "" }}</textarea>
-          <button type="submit" name="action" value="trigger">
+          <button type="submit" name="action" value="trigger" onclick="document.getElementById('spinner').style.display='inline'">
+          <!-- old line: <button type="submit" name="action" value="trigger"> -->
             Invoke
           </button>
           <button type="submit" name="action" value="refill_last_prompt" formnovalidate class="refresh-button">
             Refill-in Last Prompt
           </button>
         </div>
-        <div class="spinner" id="spinner">🌀</div>
       </section>
 
       <!-- SYSTEM PROMPT VIEWER -->
@@ -251,16 +272,13 @@
       </section>
     </form>
 
+    <div class="spinner" id="spinner">🌀</div>
+
     <!-- CONTEXT VIEWER -->
     <section class="context-viewer">
       <details>
         <summary>Prompt Blob</summary>
-        Unable to show at the moment.<br>
-        <!-- 
-        see notes.md
-        <pre>{{ prompt_blob }}</pre>
-        <pre>{{ prompt_blob|e }}</pre> 
-        -->
+        <pre>{{ prompt_blob|e }}</pre>
       </details>
     </section>
 
@@ -275,7 +293,7 @@
           </div>
         {% endif %}
       {% endwith %}
-    <section class="output">
+    <section class="output" id="response">
       <div class="response-box">
         <div class="response-header">
           {{ model }} response 
