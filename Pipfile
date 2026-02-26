@@ -8,11 +8,10 @@ flask = "*"
 markdown-it-py = "*"
 pygments = "*"
 requests = "*"
-dotenv = "*"
+python-dotenv = "*"
 gradient = "*"
 mypy = "*"
 
 [dev-packages]
 
 [requires]
-python_version = "3.10"
