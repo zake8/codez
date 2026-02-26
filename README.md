@@ -39,15 +39,17 @@ or the DigitalOcean Gradient (Anthropic Claude) API.
 
 1. Clone the repository:
 
-git clone https://github.com/your-org/your-repo.git cd your-repo
+`git clone https://github.com/your-org/your-repo.git`
+
+`cd your-repo`
 
 2. Install system dependencies:
 
-sudo apt install ripgrep sudo apt install mypy
+`sudo apt install ripgrep`
 
 3. Install Python dependencies:
 
-pipenv install
+`pipenv install`
 
 4. Create a `.env` file (can rename `sample.env`).
 
@@ -56,13 +58,13 @@ pipenv install
 
 Start the server:
 
-pipenv run python app.py
+`pipenv run python app.py`
 
 Then open `http://localhost:5000` in a browser.
 
 For development with auto-reload:
 
-pipenv run flask --app app run --debug
+`pipenv run flask --app app run --debug`
 
 
 
