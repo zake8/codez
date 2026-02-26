@@ -10,6 +10,7 @@ pygments = "*"
 requests = "*"
 dotenv = "*"
 gradient = "*"
+mypy = "*"
 
 [dev-packages]
 
