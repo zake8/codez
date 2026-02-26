@@ -19,6 +19,7 @@ import datetime
 import os
 import requests
 import subprocess
+import shutil
 import pydoc
 import re as _re
 
@@ -763,6 +764,12 @@ def mypy_file() -> Any:
 
     if not rel_path:
         flash("No file selected", "error")
+        return redirect(url_for("ui"))
+
+    if not shutil.which("mypy"):
+        mess = "mypy is not installed (or not on PATH)"
+        logging.warning(mess)
+        flash(mess, "error")
         return redirect(url_for("ui"))
 
     # Whitelist allowed flags to prevent injection
