@@ -1,3 +1,5 @@
+
+
 # Repo-level Code Assistant
 
 A Flask web app for one-shot, repo-aware code assistance.
@@ -35,26 +37,38 @@ or the DigitalOcean Gradient (Anthropic Claude) API.
 
 ## Installation
 
-git clone https://github.com/your-org/your-repo.git
-cd your-repo
-sudo apt install ripgrep
-sudo apt install mypy 
+1. Clone the repository:
+
+git clone https://github.com/your-org/your-repo.git cd your-repo
+
+2. Install system dependencies:
+
+sudo apt install ripgrep sudo apt install mypy
+
+3. Install Python dependencies:
+
 pipenv install
-Create a .env file (can rename sample.env)
+
+4. Create a `.env` file (can rename `sample.env`).
 
 
 ## Running
 
+Start the server:
+
 pipenv run python app.py
+
 Then open `http://localhost:5000` in a browser.
 
 For development with auto-reload:
+
 pipenv run flask --app app run --debug
+
 
 
 ## Logs
 
-- code_assist.log — application log
-- code_assist_perma.log — permanent one-line-per-request log
-- optional response_*.md files in /responses dir
+- `code_assist.log` — application log
+- `code_assist_perma.log` — permanent one-line-per-request log
+- Optional `response_*.md` files in `/responses` dir
 
