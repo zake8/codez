@@ -169,7 +169,7 @@ def ui() -> Any:
                         if not f.startswith('.') and '/.' not in f:
                             if os.path.basename(f).startswith("response_") and f.endswith(".md"):
                                 pass  # always exclude generated response_*.md files
-                            elif f.endswith(".md") or f.endswith(".txt"):
+                            elif f.endswith(".md") or f.endswith(".txt") or f.endswith(".json"):
                                 if include_md_txt:
                                     filtered_files.append(f)
                             else:

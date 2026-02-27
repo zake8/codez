@@ -111,6 +111,7 @@
 
           <label>
             <input type="checkbox" name="use_os_walk" value="1" {% if use_os_walk %}checked{% endif %}> Use os.walk (default cleared)
+            (os.walk ignores git tracking status, otherwise git ls-files only returns tracked files)
           </label>
 
           <label>
@@ -144,7 +145,7 @@
           </label>
           <label>
             <input type="checkbox" name="include_md_txt" value="1" {% if include_md_txt %}checked{% endif %}>
-            Include .md / .txt files in file list (default cleared)
+            Include, .md, .txt, .json, files in file list (default cleared)
           </label>
           <label>
             <input type="checkbox" name="sum_unchecked" value="1" {% if sum_unchecked %}checked{% endif %}>
