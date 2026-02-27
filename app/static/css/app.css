@@ -156,6 +156,17 @@ select {
   padding: 0.3rem 0.6rem;
 }
 
+.finish-reason-warning {
+  margin: 0;
+  padding: 0.6rem 0.75rem;
+  background: #fff3cd;
+  border-bottom: 2px solid #e6a817;
+  color: #7a4f00;
+  font-weight: 600;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
 /* Make the Run button prominent */
 .chat form button[type="submit"] {
   font-size: 1.2rem;

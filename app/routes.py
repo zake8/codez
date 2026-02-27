@@ -112,6 +112,7 @@ def ui() -> Any:
     prompt_blob = ""  # will be set on trigger post
     rendered_html = ""  # will be set on trigger post
     markdown_text = ""  # will be set on trigger post
+    finish_reason = ""  # will be set on trigger post
     repo_files = []  # will marshal
     devstral_models = []  # will marshal
     dog_models = []  # will marshal
@@ -221,7 +222,7 @@ def ui() -> Any:
                 ])
                 if platform_choice == "mistral":
                     # Invoke! Devstral API
-                    markdown_text, cost = call_devstral(
+                    markdown_text, cost, finish_reason = call_devstral(
                         prompt_blob=prompt_blob,
                         custom_system_prompt=custom_system_prompt,
                         model=model,
@@ -230,7 +231,7 @@ def ui() -> Any:
                     )
                 else:
                     # Invoke! DigitalOcean Gradient API
-                    markdown_text, cost = call_dog(
+                    markdown_text, cost, finish_reason = call_dog(
                         prompt_blob=prompt_blob,
                         custom_system_prompt=custom_system_prompt,
                         model=model,
@@ -311,6 +312,7 @@ def ui() -> Any:
         last_prompt=last_prompt,
         custom_system_prompt=custom_system_prompt,
         platform_choice=platform_choice,
+        finish_reason=finish_reason,
     )
 
 
@@ -436,18 +438,19 @@ def call_dog(
     model: str = "anthropic-claude-opus-4.6",
     temperature: float = 0.2,
     timeout: int = 45,
-) -> tuple[str, float]:
+) -> tuple[str, float, str]:
     """
     Call DigitalOcean Gradient API with given prompt, model, and temperature.
     Returns a tuple:
       - generated_text (Markdown-ready str)
       - cost (float)
+      - finish_reason (str)
     """
     if not GRADIENT_MODEL_ACCESS_KEY:
         mess = "GRADIENT_MODEL_ACCESS_KEY missing"
         logging.error(mess, exc_info=True)
         flash(mess)
-        return mess, 0
+        return mess, 0, "error"
 
     # Determine context window based on model
     # All current Anthropic Claude models via DigitalOcean Gradient support 200k tokens
@@ -484,8 +487,13 @@ def call_dog(
         if not generated_text:
             logging.warning("DigitalOcean Gradient API returned empty text")
             generated_text = "*Warning: DigitalOcean Gradient returned empty text*"
+        finish_reason = response.choices[0].finish_reason or "unknown"
+        if finish_reason != "stop":
+            logging.warning(
+                f"call_dog: non-nominal finish_reason='{finish_reason}' "
+                f"model='{model}'"
+            )
         input_rate, output_rate = get_rates(model)
-        usage = response.usage
         prompt_tokens = response.usage.prompt_tokens
         completion_tokens = response.usage.completion_tokens
         # total_tokens = response.usage.total_tokens
@@ -499,12 +507,12 @@ def call_dog(
             f"{prompt_tokens + completion_tokens} total tokens, "
             f"for a cost of ${cost}"
         )
-        return generated_text, cost
+        return generated_text, cost, finish_reason
     except Exception as e:
         mess = f"Error calling DigitalOcean Gradient API: {e}"
         logging.error(mess, exc_info=True)
         flash(mess)
-        return mess, 0
+        return mess, 0, "error"
 
 
 def call_devstral(
@@ -513,23 +521,24 @@ def call_devstral(
     model: str = "devstral-latest",
     temperature: float = 0.2,
     timeout: int = 45,
-) -> tuple[str, float]:
+) -> tuple[str, float, str]:
     """
     Call Devstral API with given prompt, model, and temperature.
     Returns a tuple:
       - generated_text (Markdown-ready str)
       - cost (float)
+      - finish_reason (str)
     """
     if not DEVSTRAL_API_KEY:
         mess = f"DEVSTRAL_API_KEY missing"
         logging.error(mess, exc_info=True)
         flash(mess)
-        return mess, 0
+        return mess, 0, "error"
     if not DEVSTRAL_API_URL:
         mess = "DEVSTRAL_API_URL missing"
         logging.error(mess, exc_info=True)
         flash(mess)
-        return mess, 0
+        return mess, 0, "error"
     # rough token estimate
     prompt_tokens_est = len(prompt_blob) // 4  
     if "small" in model.lower(): ### need to dial in numbers here better, also medium?
@@ -580,6 +589,12 @@ def call_devstral(
         if not generated_text:
             logging.warning("Devstral API returned empty text")
             generated_text = f"*Warning: Devstral returned empty text*"
+        finish_reason = choices[0].get("finish_reason") or "unknown"
+        if finish_reason != "stop":
+            logging.warning(
+                f"call_devstral: non-nominal finish_reason='{finish_reason}' "
+                f"model='{model}'"
+            )
         # Extract token usage if available
         input_rate, output_rate = get_rates(model)
         usage = data.get("usage", {})
@@ -595,17 +610,17 @@ def call_devstral(
             f"{prompt_tokens + completion_tokens} total tokens, "
             f"for a cost of ${cost}"
         )
-        return generated_text, cost
+        return generated_text, cost, finish_reason
     except requests.HTTPError:
         mess = f"Devstral API error response\n{response.text}"
         logging.error(mess)
         flash(mess)
-        return mess, 0
+        return mess, 0, "error"
     except Exception as e:
         mess = f"Devstral API error response\n{response.text}"
         logging.error(mess, exc_info=True)
         flash(mess)
-        return mess, 0
+        return mess, 0, "error"
 
 
 def get_repo_files(local_dir: str = ".", use_os_walk: bool = False) -> list[str]:

@@ -302,6 +302,12 @@
             (prompt plus completion cost = ${{ cost }})
           {% endif %}
         </div>
+        {% if finish_reason and finish_reason != "stop" %}
+        <div class="finish-reason-warning">
+          LLM return code was non-nominal: <strong>finish_reason = "{{ finish_reason }}"</strong>
+          — response may be truncated; a diff or change block may be incomplete!
+        </div>
+        {% endif %}
         <div class="chat-message">
           {{ rendered_html|safe }}
         </div>
