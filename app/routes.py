@@ -50,6 +50,7 @@ If assumptions are required, list them before proceeding.
 Output should be design notes and/or unified diff(s). 
 Diffs need to be clean, readable, simple, and show inserts and deletes fully marked with no sub indents assumed.
 No need to - and + existing code unchanged over itself; just deliver the changes. 
+Provide/state a (git commit -m) message with each diff or group of diffs.
 Use "exc_info=True" on all exception logging. 
 Preferred output format: .md. 
 Ignore functions with _old in their name except as reference to previous iterations of the code, these are not used.
