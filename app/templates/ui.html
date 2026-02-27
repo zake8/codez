@@ -251,13 +251,15 @@
             placeholder="Ask a one-shot repo-aware dev question..."
             required
           >{{ last_prompt if last_prompt else "" }}</textarea>
-          <button type="submit" name="action" value="trigger" onclick="document.getElementById('spinner').style.display='inline'">
-          <!-- old line: <button type="submit" name="action" value="trigger"> -->
+          <button type="submit" name="action" value="trigger" onclick="document.getElementById('spinner').style.display='inline-block'">
+          <!-- old line: <button type="submit" name="action" value="trigger" onclick="document.getElementById('spinner').style.display='inline'"> -->
+          <!-- older line: <button type="submit" name="action" value="trigger"> -->
             Invoke
           </button>
           <button type="submit" name="action" value="refill_last_prompt" formnovalidate class="refresh-button">
             Refill-in Last Prompt
           </button>
+          <div class="spinner" id="spinner"></div>
         </div>
       </section>
 
@@ -271,8 +273,6 @@
         </details>
       </section>
     </form>
-
-    <div class="spinner" id="spinner">🌀</div>
 
     <!-- CONTEXT VIEWER -->
     <section class="context-viewer">
