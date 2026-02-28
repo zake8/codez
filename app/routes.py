@@ -196,6 +196,7 @@ def ui() -> Any:
                         try:
                             with open(path, "r", encoding="utf-8") as fp:
                                 content = fp.read()
+                            content = _re.sub(r'^```', '~~~', content, flags=_re.MULTILINE)
                         except Exception:
                             content = f"# Could not read {f}"
                         sel_files_blob += f"### {f}\n```\n{content}\n```"
@@ -211,6 +212,7 @@ def ui() -> Any:
                                     summary = summarize_css_file(path)
                                 case _:
                                     summary = "no summary"
+                            summary = _re.sub(r'^```', '~~~', summary, flags=_re.MULTILINE)
                             sel_files_blob += f"### {f} (summary)\n```\n{summary}\n```"
                 prompt_blob = "\n\n".join([
                     f"#### SOME REPOSITORY SIGNALS:",
@@ -220,6 +222,11 @@ def ui() -> Any:
                     f"#### USER QUERY/PROMPT:",
                     user_prompt,
                 ])
+                try:
+                    with open("./last_prompt_blob.txt", "w", encoding="utf-8") as _dbg:
+                        _dbg.write(prompt_blob)
+                except IOError as e:
+                    logging.error(f"Failed to write debug prompt blob: {e}", exc_info=True)
                 if platform_choice == "mistral":
                     # Invoke! Devstral API
                     markdown_text, cost, finish_reason = call_devstral(
