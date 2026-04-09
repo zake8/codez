@@ -3,3 +3,5 @@ Pipfile.lock
 *.log*
 /responses
 last_prompt.txt
+last_prompt_blob.txt
+
