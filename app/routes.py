@@ -70,7 +70,7 @@ so as to keep things machine-checkable)
 """
 
 # Markdown + syntax highlighting
-md = MarkdownIt("commonmark", {"html": True, "linkify": True})
+md = MarkdownIt("commonmark", {"html": True, "linkify": True}).enable("table")
 formatter = HtmlFormatter()
 PYGMENTS_CSS = formatter.get_style_defs(".highlight")
 

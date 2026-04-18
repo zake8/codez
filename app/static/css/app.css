@@ -85,10 +85,6 @@ select {
 .flash-message {
   color: purple;
   font-weight: bold;
-}
-
-/* Flash message styles */
-.flash-message {
   padding: 10px;
   margin: 10px 0;
 }
@@ -109,8 +105,8 @@ select {
   from { transform: rotate(0deg); }
   to   { transform: rotate(360deg); }
 }
- 
- .context-viewer details {
+
+.context-viewer details {
   margin-top: 1rem;
   padding: 0.5rem;
   border: 1px solid #ddd;
@@ -350,4 +346,32 @@ button:hover {
 }
 .dir-browser-select-btn:hover {
   background: #45475a;
+}
+
+/* Markdown table rendering */
+.chat-message table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  font-size: 0.95em;
+  overflow-x: auto;
+  display: block;
+}
+.chat-message th,
+.chat-message td {
+  border: 1px solid #45475a;
+  padding: 0.45em 0.75em;
+  text-align: left;
+  white-space: nowrap;
+}
+.chat-message th {
+  background-color: #313244;
+  font-weight: bold;
+  color: #cdd6f4;
+}
+.chat-message tr:nth-child(even) {
+  background-color: #1e1e2e;
+}
+.chat-message tr:hover {
+  background-color: #2a2a3e;
 }
