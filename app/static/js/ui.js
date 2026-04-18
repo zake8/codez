@@ -1,5 +1,12 @@
 // ── Directory browser ────────────────────────────────────────────────────────
 
+function attrJson(val) {
+  // JSON.stringify produces double-quoted strings; when embedded inside an
+  // HTML attribute that is itself double-quoted the inner quotes break parsing.
+  // Escape them to &quot; so the attribute stays well-formed.
+  return JSON.stringify(val).replace(/"/g, '&quot;');
+}
+
 function openDirBrowser() {
   const localDirInput = document.getElementById('local_dir_input');
   const startPath = localDirInput.value.trim() || '/';
@@ -35,7 +42,7 @@ function loadDirBrowser(path) {
       const selectBtn = document.createElement('li');
       selectBtn.innerHTML =
         '<button type="button" class="dir-browser-select-btn" ' +
-        'onclick="selectDir(' + JSON.stringify(data.path) + ')">✔ Select: ' +
+        'onclick="selectDir(' + attrJson(data.path) + ')">✔ Select: ' +
         escHtml(data.path) + '</button>';
       listEl.appendChild(selectBtn);
 
@@ -44,7 +51,7 @@ function loadDirBrowser(path) {
         const parentLi = document.createElement('li');
         parentLi.innerHTML =
           '<span class="dir-browser-entry dir-browser-dir" ' +
-          'onclick="loadDirBrowser(' + JSON.stringify(data.parent) + ')">⬆ ..</span>';
+          'onclick="loadDirBrowser(' + attrJson(data.parent) + ')">⬆ ..</span>';
         listEl.appendChild(parentLi);
       }
 
@@ -54,7 +61,7 @@ function loadDirBrowser(path) {
         if (entry.is_dir) {
           li.innerHTML =
             '<span class="dir-browser-entry dir-browser-dir" ' +
-            'onclick="loadDirBrowser(' + JSON.stringify(entry.path) + ')">📁 ' +
+            'onclick="loadDirBrowser(' + attrJson(entry.path) + ')">📁 ' +
             escHtml(entry.name) + '</span>';
         } else {
           li.innerHTML =
