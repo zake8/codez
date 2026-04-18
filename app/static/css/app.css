@@ -206,20 +206,6 @@ button:hover {
   background: #f0f0f0;
 }
 
-/* Run button: bigger & prominent */
-.chat button[type="submit"] {
-  font-size: 1.3rem;
-  font-weight: 600;
-  padding: 0.6rem 1.5rem;
-  background: #000;
-  color: #fff;
-  border: 1px solid #000;
-}
-
-.chat button[type="submit"]:hover {
-  background: #333;
-}
-
 /* Open in text editor / refresh buttons: same style as base button */
 .response-actions button,
 .file-picker button {
@@ -324,20 +310,20 @@ button:hover {
 }
 .dir-browser-dir {
   cursor: pointer;
-  color: #89b4fa;
+  color: #0969da;
 }
 .dir-browser-dir:hover {
-  background: #313244;
+  background: #f0f4ff;
 }
 .dir-browser-file {
-  color: #a6adc8;
+  color: #444;
 }
 .dir-browser-select-btn {
   width: 100%;
   text-align: left;
-  background: #313244;
-  color: #a6e3a1;
-  border: 1px solid #45475a;
+  background: #f6f8fa;
+  color: #1a7f37;
+  border: 1px solid #ccc;
   border-radius: 4px;
   padding: 0.3em 0.6em;
   cursor: pointer;
@@ -345,7 +331,7 @@ button:hover {
   margin-bottom: 0.3em;
 }
 .dir-browser-select-btn:hover {
-  background: #45475a;
+  background: #e6f4ea;
 }
 
 /* Markdown table rendering */
@@ -359,19 +345,19 @@ button:hover {
 }
 .chat-message th,
 .chat-message td {
-  border: 1px solid #45475a;
+  border: 1px solid #d0d7de;
   padding: 0.45em 0.75em;
   text-align: left;
   white-space: nowrap;
 }
 .chat-message th {
-  background-color: #313244;
+  background-color: #f6f8fa;
   font-weight: bold;
-  color: #cdd6f4;
+  color: #1f2328;
 }
 .chat-message tr:nth-child(even) {
-  background-color: #1e1e2e;
+  background-color: #f6f8fa;
 }
 .chat-message tr:hover {
-  background-color: #2a2a3e;
+  background-color: #eaf0f7;
 }
