@@ -1,3 +1,89 @@
+// ── Directory browser ────────────────────────────────────────────────────────
+
+function openDirBrowser() {
+  const localDirInput = document.getElementById('local_dir_input');
+  const startPath = localDirInput.value.trim() || '/';
+  const overlay = document.getElementById('dir-browser-overlay');
+  overlay.style.display = 'flex';
+  loadDirBrowser(startPath);
+}
+
+function closeDirBrowser() {
+  const overlay = document.getElementById('dir-browser-overlay');
+  overlay.style.display = 'none';
+}
+
+function loadDirBrowser(path) {
+  const statusEl = document.getElementById('dir-browser-status');
+  const listEl   = document.getElementById('dir-browser-list');
+  const pathEl   = document.getElementById('dir-browser-path');
+
+  statusEl.textContent = 'Loading…';
+  listEl.innerHTML = '';
+
+  fetch('/browse_dir?path=' + encodeURIComponent(path))
+    .then(function(resp) { return resp.json(); })
+    .then(function(data) {
+      if (data.error) {
+        statusEl.textContent = 'Error: ' + data.error;
+        return;
+      }
+      statusEl.textContent = '';
+      pathEl.textContent = data.path;
+
+      // "Select this directory" button at top
+      const selectBtn = document.createElement('li');
+      selectBtn.innerHTML =
+        '<button type="button" class="dir-browser-select-btn" ' +
+        'onclick="selectDir(' + JSON.stringify(data.path) + ')">✔ Select: ' +
+        escHtml(data.path) + '</button>';
+      listEl.appendChild(selectBtn);
+
+      // Parent directory link
+      if (data.parent !== null) {
+        const parentLi = document.createElement('li');
+        parentLi.innerHTML =
+          '<span class="dir-browser-entry dir-browser-dir" ' +
+          'onclick="loadDirBrowser(' + JSON.stringify(data.parent) + ')">⬆ ..</span>';
+        listEl.appendChild(parentLi);
+      }
+
+      // Entries — directories first (server already sorted alpha, dirs flagged)
+      data.entries.forEach(function(entry) {
+        const li = document.createElement('li');
+        if (entry.is_dir) {
+          li.innerHTML =
+            '<span class="dir-browser-entry dir-browser-dir" ' +
+            'onclick="loadDirBrowser(' + JSON.stringify(entry.path) + ')">📁 ' +
+            escHtml(entry.name) + '</span>';
+        } else {
+          li.innerHTML =
+            '<span class="dir-browser-entry dir-browser-file">📄 ' +
+            escHtml(entry.name) + '</span>';
+        }
+        listEl.appendChild(li);
+      });
+    })
+    .catch(function(err) {
+      statusEl.textContent = 'Fetch error: ' + err;
+    });
+}
+
+function selectDir(path) {
+  document.getElementById('local_dir_input').value = path;
+  closeDirBrowser();
+}
+
+function escHtml(str) {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+// ── End directory browser ────────────────────────────────────────────────────
+
 function grepPy() {
   const searchValue = encodeURIComponent(document.getElementById('grep_search').value);
   const button = event.target;

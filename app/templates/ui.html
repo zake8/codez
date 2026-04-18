@@ -105,7 +105,8 @@
           <hr>
           <label>
             <strong>Local directory:</strong>
-            <input type="text" name="local_dir" placeholder="/path/to/repo" value="{{ local_dir }}">
+            <input type="text" name="local_dir" id="local_dir_input" placeholder="/path/to/repo" value="{{ local_dir }}">
+            <button type="button" class="refresh-button" onclick="openDirBrowser()">Browse…</button>
             (default . )
             <span class="server-info">
               &nbsp;|&nbsp; host: <code>{{ server_hostname }}</code>
@@ -330,5 +331,34 @@
     </section>
 
   </div>
+
+  <!-- Directory browser overlay -->
+  <div id="dir-browser-overlay"
+       style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+              background:rgba(0,0,0,0.55); z-index:1000;
+              align-items:center; justify-content:center;">
+    <div style="background:#1e1e2e; color:#cdd6f4; border:1px solid #45475a;
+                border-radius:8px; padding:1.2em; width:min(600px,90vw);
+                max-height:80vh; display:flex; flex-direction:column; gap:0.5em;">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong>Browse server directory</strong>
+        <button type="button" onclick="closeDirBrowser()"
+                style="background:none; border:none; color:#cdd6f4;
+                       font-size:1.3em; cursor:pointer;">✕</button>
+      </div>
+      <div style="font-size:0.8em; color:#a6adc8;">
+        Current: <code id="dir-browser-path"></code>
+      </div>
+      <div id="dir-browser-status" style="color:#f38ba8; font-size:0.85em;"></div>
+      <ul id="dir-browser-list"
+          style="list-style:none; margin:0; padding:0; overflow-y:auto;
+                 flex:1; border:1px solid #313244; border-radius:4px; padding:0.4em;">
+      </ul>
+      <div style="font-size:0.75em; color:#6c7086;">
+        Click a folder to navigate into it. Click "✔ Select" to use that path.
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>

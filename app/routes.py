@@ -751,6 +751,47 @@ def grep_py() -> Any:
         return redirect(url_for("ui"))
 
 
+@app.route("/browse_dir", methods=["GET"])
+def browse_dir() -> Any:
+    """
+    Server-side directory browser. Returns JSON list of entries in the requested path.
+    Used by the UI directory picker to let the user click through the server filesystem.
+    """
+    from flask import jsonify
+    req_path = request.args.get("path", "/").strip()
+
+    # Normalise and guard against traversal tricks
+    try:
+        abs_path = os.path.realpath(req_path)
+    except Exception as e:
+        logging.error(f"browse_dir: realpath failed for '{req_path}': {e}", exc_info=True)
+        return jsonify({"error": str(e), "path": req_path, "entries": []}), 400
+
+    if not os.path.isdir(abs_path):
+        return jsonify({"error": "Not a directory", "path": abs_path, "entries": []}), 400
+
+    try:
+        raw = os.listdir(abs_path)
+    except PermissionError as e:
+        logging.warning(f"browse_dir: permission denied for '{abs_path}': {e}", exc_info=True)
+        return jsonify({"error": "Permission denied", "path": abs_path, "entries": []}), 403
+    except Exception as e:
+        logging.error(f"browse_dir: listdir failed for '{abs_path}': {e}", exc_info=True)
+        return jsonify({"error": str(e), "path": abs_path, "entries": []}), 500
+
+    entries = []
+    for name in sorted(raw, key=lambda s: s.lower()):
+        full = os.path.join(abs_path, name)
+        entries.append({
+            "name": name,
+            "is_dir": os.path.isdir(full),
+            "path": full,
+        })
+
+    parent = str(os.path.dirname(abs_path)) if abs_path != os.path.dirname(abs_path) else None
+    return jsonify({"path": abs_path, "parent": parent, "entries": entries})
+
+
 @app.route("/pyhelp", methods=["GET"])
 def pyhelp() -> Any:
     """
