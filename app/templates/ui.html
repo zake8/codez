@@ -107,6 +107,10 @@
             <strong>Local directory:</strong>
             <input type="text" name="local_dir" placeholder="/path/to/repo" value="{{ local_dir }}">
             (default . )
+            <span class="server-info">
+              &nbsp;|&nbsp; host: <code>{{ server_hostname }}</code>
+              &nbsp;|&nbsp; running at: <code>{{ server_cwd }}</code>
+            </span>
           </label>
 
           <label>

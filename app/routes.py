@@ -18,6 +18,7 @@ from typing import Any, Dict
 import datetime
 import os
 import requests
+import socket
 import subprocess
 import shutil
 import pydoc
@@ -39,6 +40,9 @@ WRITE_PERMALOG = True
 PERMALOG_FN = "./code_assist_perma.log"
 
 LAST_PROMPT_FN = "./last_prompt.txt"
+
+SERVER_HOSTNAME = socket.gethostname()
+SERVER_CWD = os.getcwd()
 
 SYSTEM_PROMPT = """Do not introduce new layers, frameworks, or abstractions. 
 Follow existing naming, error-handling, and logging conventions. 
@@ -320,6 +324,8 @@ def ui() -> Any:
         custom_system_prompt=custom_system_prompt,
         platform_choice=platform_choice,
         finish_reason=finish_reason,
+        server_hostname=SERVER_HOSTNAME,
+        server_cwd=SERVER_CWD,
     )
 
 
