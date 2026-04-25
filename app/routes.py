@@ -381,7 +381,7 @@ def get_rates(model: str) -> tuple[float, float]:
         case "anthropic-claude-3.5-haiku":
             input_rate  =  0.80
             output_rate =  4.00
-        case "anthropic-claude-4.5-haiku", "anthropic-claude-haiku-4.5":
+        case "anthropic-claude-4.5-haiku" | "anthropic-claude-haiku-4.5":
             input_rate  =  1.00
             output_rate =  5.00
         # Sonnet
