@@ -416,6 +416,10 @@ def get_rates(model: str) -> tuple[float, float]:
         case "anthropic-claude-opus-4.6":
             input_rate  =  5.00  # DO billing console shows @ $0.005/thousand
             output_rate = 25.00  # DO billing console shows @ $0.025/thousand
+        case "anthropic-claude-opus-4.7" | "anthropic-claude-4.7-opus":
+            input_rate  =  5.00  # Input: $5.00 / 1M tokens
+            output_rate = 25.00  # Output: $25.00 / 1M tokens
+            # Cache write (5m): $6.25/M; Cache write (1h): $10.00/M; Cache read: $0.50/M
         # devstral
         case "devstral-small-2507":
             input_rate  =  0.10

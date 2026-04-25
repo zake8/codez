@@ -9,6 +9,7 @@ load_dotenv('../.env')
 DIGITALOCEAN_API_TOKEN = os.environ.get("DIGITALOCEAN_API_TOKEN")
 
 
+# appears in the dropdown if the API listing fails
 DIGITALOCEAN_FALLBACK_MODELS = [
     "anthropic-claude-3.5-haiku",
     "anthropic-claude-4.5-haiku",
@@ -22,6 +23,8 @@ DIGITALOCEAN_FALLBACK_MODELS = [
     "anthropic-claude-opus-4",
     "anthropic-claude-4.1-opus",
     "anthropic-claude-opus-4.5",
+    "anthropic-claude-opus-4.6",
+    "anthropic-claude-opus-4.7",
 ]
 
 
