@@ -643,6 +643,87 @@ def call_devstral(
         return mess, 0, "error"
 
 
+def call_anthropic(
+    prompt_blob: str,
+    custom_system_prompt: str,
+    model: str = "claude-3-sonnet-20240229",
+    temperature: float = 0.2,
+    timeout: int = 45,
+) -> tuple[str, float, str]:
+    """
+    Call Anthropic API with given prompt, model, and temperature.
+    Returns a tuple:
+      - generated_text (Markdown-ready str)
+      - cost (float)
+      - finish_reason (str)
+    """
+    if not ANTHROPIC_API_KEY:
+        mess = "ANTHROPIC_API_KEY missing"
+        logging.error(mess, exc_info=True)
+        flash(mess)
+        return mess, 0, "error"
+
+    try:
+        import anthropic
+        client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+        # Determine max tokens based on model
+        if "opus" in model:
+            max_tokens = 4096
+        elif "sonnet" in model:
+            max_tokens = 4096
+        else:  # haiku
+            max_tokens = 4096
+
+        response = client.messages.create(
+            model=model,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            system=SYSTEM_PROMPT + "\n\n" + custom_system_prompt,
+            messages=[
+                {
+                    "role": "user",
+                    "content": prompt_blob,
+                }
+            ]
+        )
+
+        generated_text = response.content[0].text if response.content else ""
+        if not generated_text:
+            logging.warning("Anthropic API returned empty text")
+            generated_text = "*Warning: Anthropic returned empty text*"
+
+        finish_reason = response.stop_reason or "stop"
+        if finish_reason != "end_turn":
+            logging.warning(
+                f"call_anthropic: non-nominal finish_reason='{finish_reason}' "
+                f"model='{model}'"
+            )
+
+        input_rate, output_rate = get_rates(model)
+        prompt_tokens = response.usage.input_tokens
+        completion_tokens = response.usage.output_tokens
+        cost = (
+            prompt_tokens * input_rate
+          + completion_tokens * output_rate
+        ) / 1_000_000
+
+        logging.info(
+            f"Anthropic API used {prompt_tokens} prompt, "
+            f"{completion_tokens} completion, "
+            f"{prompt_tokens + completion_tokens} total tokens, "
+            f"for a cost of ${cost}"
+        )
+
+        return generated_text, cost, finish_reason
+
+    except Exception as e:
+        mess = f"Error calling Anthropic API: {e}"
+        logging.error(mess, exc_info=True)
+        flash(mess)
+        return mess, 0, "error"
+
+
 def get_repo_files(local_dir: str = ".", use_os_walk: bool = False) -> list[str]:
     # Try git first unless explicitly told to use os.walk
     if not use_os_walk:
