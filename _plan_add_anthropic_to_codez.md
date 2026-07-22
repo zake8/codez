@@ -128,6 +128,10 @@ GET /v1/models/{model_id} — retrieve details about a specific model or resolve
 If you're writing software that targets multiple providers, the Anthropic Models API is conceptually similar to OpenAI's /v1/models, making it straightforward to discover supported models at runtime rather than hard-coding model names.
 
 
+## slice 3.25: clean-up
+- move get_anthropic_models to own .py
+
+
 ## Slice 3.3: Add call_anthropic() Function
 
 File: app/routes.py
