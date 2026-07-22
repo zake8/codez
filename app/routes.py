@@ -687,6 +687,24 @@ def build_file_tree(paths: list[str]) -> defaultdict:  # type: ignore[type-arg]
     return root
 
 
+def get_anthropic_models() -> list[str]:
+    """
+    Get available Anthropic models.
+    Returns cached list of model IDs.
+    """
+    # For now, return hardcoded list of common Anthropic models
+    # In future, could implement actual API call to https://api.anthropic.com/v1/models
+    return [
+        "claude-3-5-sonnet-20240620",
+        "claude-3-opus-20240229",
+        "claude-3-sonnet-20240229",
+        "claude-3-haiku-20240307",
+        "claude-2.1",
+        "claude-2.0",
+        "claude-instant-1.2"
+    ]
+
+
 @app.route("/mismodlst", methods=["GET"])
 def mismodlst() -> Any:
     """ Opens new page with a list of valid Mistral model IDs available to this API key. """
