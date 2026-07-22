@@ -69,7 +69,6 @@ import anthropic  # Add this import
 # Add after existing API key loads
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
-Commit message: "Add Anthropic API configuration and constants"
 
 
 ## <-- we are here (fixing above, 'bout to do below) -->
@@ -83,16 +82,53 @@ def get_anthropic_models() -> list[str]:
     Get available Anthropic models.
     Returns cached list of model IDs.
     """
-    # Anthropic doesn't have a models listing API endpoint
-    # Return known model names
     return [
-        "claude-3-opus-20240229",
-        "claude-3-sonnet-20240229",
-        "claude-3-haiku-20240307",
-        "claude-3-5-sonnet-20240620",
     ]
 
-Commit message: "Add get_anthropic_models() function for Anthropic platform"
+Anthropic provides a Models API for discovering which models are available to your API key.
+
+The endpoint is:
+
+GET https://api.anthropic.com/v1/models
+
+Example:
+
+curl https://api.anthropic.com/v1/models \
+  -H "x-api-key: $ANTHROPIC_API_KEY" \
+  -H "anthropic-version: 2023-06-01"
+
+It returns a paginated list of models, for example:
+
+{
+  "data": [
+    {
+      "id": "claude-sonnet-4-20250514",
+      "display_name": "Claude Sonnet 4",
+      "created_at": "2025-05-14T00:00:00Z",
+      "max_input_tokens": 200000,
+      "max_tokens": 64000,
+      "capabilities": {
+        ...
+      },
+      "type": "model"
+    }
+  ],
+  "first_id": "...",
+  "last_id": "...",
+  "has_more": false
+}
+
+The API supports:
+
+limit — number of models to return
+after_id / before_id — pagination
+optional beta headers for beta capabilities
+
+Anthropic also provides:
+
+GET /v1/models/{model_id} — retrieve details about a specific model or resolve an alias to its canonical model ID.
+
+If you're writing software that targets multiple providers, the Anthropic Models API is conceptually similar to OpenAI's /v1/models, making it straightforward to discover supported models at runtime rather than hard-coding model names.
 
 
 ## Slice 3.3: Add call_anthropic() Function
