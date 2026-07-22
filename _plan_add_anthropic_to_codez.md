@@ -70,9 +70,6 @@ import anthropic  # Add this import
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
 
-
-## <-- we are here (fixing above, 'bout to do below) -->
-
 ## Slice 3.2: Add get_anthropic_models() Function
 
 File: app/routes.py
@@ -129,6 +126,9 @@ Anthropic also provides:
 GET /v1/models/{model_id} — retrieve details about a specific model or resolve an alias to its canonical model ID.
 
 If you're writing software that targets multiple providers, the Anthropic Models API is conceptually similar to OpenAI's /v1/models, making it straightforward to discover supported models at runtime rather than hard-coding model names.
+
+
+## <-- we are here (fixing above, 'bout to do below) -->
 
 
 ## Slice 3.3: Add call_anthropic() Function
