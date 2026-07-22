@@ -15,6 +15,7 @@ from markdown_it import MarkdownIt
 from pygments.formatters import HtmlFormatter
 from typing import Any, Dict
 ##### from markupsafe import escape as markup_escape
+# import anthropic
 import datetime
 import os
 import requests
@@ -35,6 +36,7 @@ load_dotenv('../.env')
 DEVSTRAL_API_KEY = os.environ.get("DEVSTRAL_API_KEY")
 DEVSTRAL_API_URL = os.environ.get("DEVSTRAL_API_URL")
 GRADIENT_MODEL_ACCESS_KEY = os.environ.get("GRADIENT_MODEL_ACCESS_KEY")
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
 WRITE_PERMALOG = True
 PERMALOG_FN = "./code_assist_perma.log"
@@ -485,6 +487,7 @@ def call_dog(
         remaining = max_context - prompt_tokens_est - 512
         desired_max = min(4096, max(512, remaining))
         
+        # logging.info(f'func call_dog doing chat completion against model {model}.')  # diag 6/20/26
         response = client.chat.completions.create(
             messages=[
                 {
