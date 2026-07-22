@@ -128,9 +128,6 @@ GET /v1/models/{model_id} — retrieve details about a specific model or resolve
 If you're writing software that targets multiple providers, the Anthropic Models API is conceptually similar to OpenAI's /v1/models, making it straightforward to discover supported models at runtime rather than hard-coding model names.
 
 
-## <-- we are here (fixing above, 'bout to do below) -->
-
-
 ## Slice 3.3: Add call_anthropic() Function
 
 File: app/routes.py
@@ -238,8 +235,8 @@ case "claude-3-5-sonnet-20240620":
     input_rate  = 3.00
     output_rate = 15.00
 
-Commit message: "Add Anthropic model rates to get_rates() function"
-Slice 3.5: Add Anthropic Model Listing Route
+
+## Slice 3.5: Add Anthropic Model Listing Route
 
 File: app/routes.py
 
@@ -251,8 +248,6 @@ def anthropic_modellst() -> Any:
         "anthropic_modellst.html",
         results=results,
     )
-
-Commit message: "Add route for Anthropic model listing"
 
 
 ## Slice 3.6: Update ui() Function to Handle Anthropic Platform
@@ -276,8 +271,8 @@ return render_template(
     # ... rest of parameters ...
 )
 
-Commit message: "Update ui() function to handle Anthropic platform choice"
-Slice 3.7: Update UI Template for Anthropic Platform
+
+## Slice 3.7: Update UI Template for Anthropic Platform
 
 File: app/templates/ui.html
 
