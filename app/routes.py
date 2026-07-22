@@ -15,7 +15,7 @@ from markdown_it import MarkdownIt
 from pygments.formatters import HtmlFormatter
 from typing import Any, Dict
 ##### from markupsafe import escape as markup_escape
-# import anthropic
+# import anthropic  # _can't_ import here, causes circular import error! 
 import datetime
 import os
 import requests
