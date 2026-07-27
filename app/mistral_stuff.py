@@ -100,5 +100,6 @@ def get_devstral_models() -> list[str]:
         m for m in models
         if ("devstral" in m.lower() or
             "codestral" in m.lower() or
-            ("mistral" in m.lower() and "ocr" not in m.lower()))
+            ("mistral" in m.lower() and "ocr" not in m.lower() and
+             "embed" not in m.lower() and "tiny" not in m.lower()))
     )
