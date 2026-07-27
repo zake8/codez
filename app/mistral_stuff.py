@@ -98,5 +98,7 @@ def get_devstral_models() -> list[str]:
         return sorted(DEVSTRAL_FALLBACK_MODELS)
     return sorted(
         m for m in models
-        if "devstral" in m.lower()
+        if ("devstral" in m.lower() or
+            "codestral" in m.lower() or
+            ("mistral" in m.lower() and "ocr" not in m.lower()))
     )
