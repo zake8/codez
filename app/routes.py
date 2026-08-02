@@ -630,12 +630,13 @@ def call_devstral(
         )
         return generated_text, cost, finish_reason
     except requests.HTTPError:
-        mess = f"Devstral API error response\n{response.text}"
+        mess = f"Devstral API error response\n{response.text if response else 'No response received'}"
         logging.error(mess)
         flash(mess)
         return mess, 0, "error"
     except Exception as e:
-        mess = f"Devstral API error response\n{response.text}"
+        response_text = response.text if response else f"No response received: {str(e)}"
+        mess = f"Devstral API error response\n{response_text}"
         logging.error(mess, exc_info=True)
         flash(mess)
         return mess, 0, "error"
