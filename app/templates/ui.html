@@ -32,16 +32,22 @@
             <strong>Platform:</strong> 
             <input type="radio" name="platform_choice" value="mistral" {% if platform_choice == 'mistral' %}checked{% endif %}> Mistral 
             <input type="radio" name="platform_choice" value="digitalocean" {% if platform_choice == 'digitalocean' %}checked{% endif %}> DigitalOcean 
+            <input type="radio" name="platform_choice" value="anthropic" {% if platform_choice == 'anthropic' %}checked{% endif %}> Anthropic 
           </label>
           {% if platform_choice == "mistral" %}
             <label>
               <a href="{{ url_for('mismodlst') }}" target="_blank">Query Mistral Models</a> ~ 
               <a href="{{ url_for('mismodcostlst') }}" target="_blank">Query Mistral Models w/ costs</a>
             </label>
-          {% else %}
+          {% elif platform_choice == "digitalocean" %}
             <label>
               <a href="{{ url_for('domodlst') }}" target="_blank">Query DigitalOcean Gradient Models</a> ~ 
               <a href="{{ url_for('dog_info') }}" target="_blank">Model Info</a>
+            </label>
+          {% elif platform_choice == "anthropic" %}
+            <label>
+              <!-- Anthropic platform placeholders - will be implemented later -->
+              <a href="#" target="_blank">Anthropic Models (coming soon)</a>
             </label>
           {% endif %}
 
