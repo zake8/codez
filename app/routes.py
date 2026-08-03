@@ -29,6 +29,7 @@ from app.repo_scan import scan_repo_signals, scan_repo_signals, summarize_python
 from app.repo_scan import summarize_html_file, summarize_css_file
 from app.mistral_stuff import get_devstral_models, get_mismodlst, get_mismodcostlst
 from app.digitalocean_stuff import get_digitalocean_models, get_domodlst, anthropic_dog_info
+from app.anthropic_stuff import get_anthropic_models, get_anthmodlst, get_anthmodcostlst
 
 
 load_dotenv('../.env')
@@ -120,6 +121,7 @@ def ui() -> Any:
     repo_files = []  # will marshal
     devstral_models = []  # will marshal
     dog_models = []  # will marshal
+    anthropic_models = []  # will marshal
     repo_signals = ""  # will marshal
     if request.method == "POST":
         action = request.form.get("action", "trigger")
@@ -138,6 +140,10 @@ def ui() -> Any:
             dog_models = get_digitalocean_models() # singleton cached
             if model not in dog_models:
                 model = "anthropic-claude-opus-4.6"
+        if platform_choice == "anthropic":
+            anthropic_models = get_anthropic_models() # singleton cached
+            if model not in anthropic_models:
+                model = "claude-3-5-sonnet-20240620"
         local_dir = request.form.get("local_dir", "").strip()
         git_repo_url = request.form.get("git_repo_url", "").strip()
         auto_clean_temp = request.form.get("auto_clean_temp") == "1"
@@ -240,9 +246,18 @@ def ui() -> Any:
                         temperature=temperature,
                         timeout=timeout,
                     )
-                else:
+                elif platform_choice == "digitalocean":
                     # Invoke! DigitalOcean Gradient API
                     markdown_text, cost, finish_reason = call_dog(
+                        prompt_blob=prompt_blob,
+                        custom_system_prompt=custom_system_prompt,
+                        model=model,
+                        temperature=temperature,
+                        timeout=timeout,
+                    )
+                elif platform_choice == "anthropic":
+                    # Invoke! Anthropic API
+                    markdown_text, cost, finish_reason = call_anthropic(
                         prompt_blob=prompt_blob,
                         custom_system_prompt=custom_system_prompt,
                         model=model,
@@ -642,6 +657,147 @@ def call_devstral(
         return mess, 0, "error"
 
 
+def call_anthropic(
+    prompt_blob: str,
+    custom_system_prompt: str,
+    model: str = "claude-3-5-sonnet-20240620",
+    temperature: float = 0.2,
+    timeout: int = 45,
+) -> tuple[str, float, str]:
+    """
+    Call Anthropic API with given prompt, model, and temperature.
+    Returns a tuple:
+      - generated_text (Markdown-ready str)
+      - cost (float)
+      - finish_reason (str)
+    """
+    if not ANTHROPIC_API_KEY:
+        mess = "ANTHROPIC_API_KEY missing"
+        logging.error(mess, exc_info=True)
+        flash(mess)
+        return mess, 0, "error"
+
+    # Determine context window based on model
+    # Most current Claude models support 200k tokens
+    if "haiku" in model.lower():
+        max_context = 200_000
+    elif "sonnet" in model.lower():
+        max_context = 200_000
+    elif "opus" in model.lower():
+        max_context = 200_000
+    else:
+        # Fallback for unknown models
+        max_context = 100_000
+        logging.warning(f"Unknown model '{model}', using fallback context window of {max_context}")
+
+    try:
+        # Rough token estimate
+        prompt_tokens_est = len(prompt_blob) // 4
+        remaining = max_context - prompt_tokens_est - 512
+        desired_max = min(4096, max(512, remaining))
+
+        # Get pricing for this model
+        pricing_map = {
+            "claude-3-5-sonnet-20240620": (3.00, 15.00),
+            "claude-3-opus-20240229": (15.00, 75.00),
+            "claude-3-sonnet-20240229": (3.00, 15.00),
+            "claude-3-haiku-20240307": (0.25, 1.25),
+            "claude-2.1": (8.00, 24.00),
+            "claude-2.0": (8.00, 24.00),
+            "claude-instant-1.2": (0.80, 2.40),
+        }
+        input_rate, output_rate = pricing_map.get(model, (0.0, 0.0))
+
+        ANTHROPIC_API_BASE = "https://api.anthropic.com/v1"
+        headers = {
+            "Authorization": f"Bearer {ANTHROPIC_API_KEY}",
+            "Anthropic-Version": "2023-06-01",
+            "Content-Type": "application/json",
+        }
+
+        payload = {
+            "model": model,
+            "max_tokens": desired_max,
+            "temperature": temperature,
+            "messages": [
+                {
+                    "role": "user",
+                    "content": prompt_blob,
+                },
+            ],
+        }
+
+        if custom_system_prompt:
+            payload["messages"].insert(0, {
+                "role": "system",
+                "content": SYSTEM_PROMPT + "\n\n" + custom_system_prompt,
+            })
+        else:
+            payload["messages"].insert(0, {
+                "role": "system",
+                "content": SYSTEM_PROMPT,
+            })
+
+        match timeout:
+            case 45:
+                timeout_values = (6, 39)
+            case 90:
+                timeout_values = (13, 77)
+            case _:
+                timeout_values = (5, 30)
+
+        response = requests.post(
+            f"{ANTHROPIC_API_BASE}/messages",
+            json=payload,
+            headers=headers,
+            timeout=timeout_values,
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        # Extract the generated text
+        content = data.get("content", [])
+        if content:
+            generated_text = content[0].get("text", "")
+        else:
+            generated_text = "*Warning: No text returned by Anthropic*"
+
+        # Extract usage and cost
+        usage = data.get("usage", {})
+        prompt_tokens = usage.get("input_tokens", prompt_tokens_est)
+        completion_tokens = usage.get("output_tokens", 0)
+        cost = (
+            prompt_tokens * input_rate
+          + completion_tokens * output_rate
+        ) / 1_000_000
+
+        finish_reason = data.get("stop_reason", "stop")
+
+        logging.info(
+            f"Anthropic API used {prompt_tokens} prompt, "
+            f"{completion_tokens} completion, "
+            f"{prompt_tokens + completion_tokens} total tokens, "
+            f"for a cost of ${cost}"
+        )
+
+        return generated_text, cost, finish_reason
+
+    except requests.HTTPError as e:
+        try:
+            error_details = response.json() if response else {"error": str(e)}
+            mess = f"Anthropic API error: {error_details.get('error', str(e))}"
+        except:
+            mess = f"Anthropic API error: {str(e)}"
+        logging.error(mess)
+        flash(mess)
+        return mess, 0, "error"
+    except Exception as e:
+        mess = f"Anthropic API error: {str(e)}"
+        logging.error(mess, exc_info=True)
+        flash(mess)
+        return mess, 0, "error"
+
+
 def get_repo_files(local_dir: str = ".", use_os_walk: bool = False) -> list[str]:
     # Try git first unless explicitly told to use os.walk
     if not use_os_walk:
@@ -714,6 +870,24 @@ def dog_info() -> Any:
         info_text=anthropic_dog_info,
     )
 
+
+@app.route("/anthmodlst", methods=["GET"])
+def anthmodlst() -> Any:
+    """ Opens new page with a list of valid Anthropic model IDs available to this API key. """
+    results = get_anthmodlst()
+    return render_template(
+        "anthmodlst.html",
+        results=results,
+    )
+
+@app.route("/anthmodcostlst", methods=["GET"])
+def anthmodcostlst() -> Any:
+    """ Opens new page with a list of valid Anthropic model IDs and costs available to this API key. """
+    results = get_anthmodcostlst()
+    return render_template(
+        "anthmodlst.html",
+        results=results,
+    )
 
 @app.route("/mismodcostlst", methods=["GET"])
 def mismodcostlst() -> Any:
