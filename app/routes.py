@@ -727,18 +727,12 @@ def call_anthropic(
                     "content": prompt_blob,
                 },
             ],
+            "system": (
+                SYSTEM_PROMPT + "\n\n" + custom_system_prompt
+                if custom_system_prompt
+                else SYSTEM_PROMPT
+            ),
         }
-
-        if custom_system_prompt:
-            payload["messages"].insert(0, {
-                "role": "system",
-                "content": SYSTEM_PROMPT + "\n\n" + custom_system_prompt,
-            })
-        else:
-            payload["messages"].insert(0, {
-                "role": "system",
-                "content": SYSTEM_PROMPT,
-            })
 
         match timeout:
             case 45:
