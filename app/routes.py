@@ -712,8 +712,8 @@ def call_anthropic(
 
         ANTHROPIC_API_BASE = "https://api.anthropic.com/v1"
         headers = {
-            "Authorization": f"Bearer {ANTHROPIC_API_KEY}",
-            "Anthropic-Version": "2023-06-01",
+            "x-api-key": ANTHROPIC_API_KEY,
+            "anthropic-version": "2023-06-01",
             "Content-Type": "application/json",
         }
 
