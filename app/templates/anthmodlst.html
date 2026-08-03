@@ -17,7 +17,7 @@
 					{% if item|length == 1 %}
 						<li><code>{{ item[0] }}</code></li>
 					{% else %}
-						<li><code>{{ item[0] }}</code> - Input: ${{ "%.2f"|format(item[1]) }}, Output: ${{ "%.2f"|format(item[2]) }} per million tokens</li>
+						<li><code>{{ item[0] }}</code> - Input: ${{ "%.2f"|format(item[1]|float) }}, Output: ${{ "%.2f"|format(item[2]|float) }} per million tokens</li>
 					{% endif %}
 				{% endfor %}
 			</ul>
