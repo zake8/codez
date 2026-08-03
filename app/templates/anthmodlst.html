@@ -11,14 +11,12 @@
 	</head>
 	<body>
 		<div class="app">
-			<h2>Available Anthropic Models (prompt and completion costs per million tokens)</h2>
+			<h2>Available Anthropic Models</h2>
 			<ul>
 				{% for item in results %}
-					{% if item is string %}
-						<li><code>{{ item }}</code></li>
-					{% else %}
-						<li><code>{{ item[0] }}</code> - Input: ${{ "%.2f"|format(item[1]|float) }}, Output: ${{ "%.2f"|format(item[2]|float) }} per million tokens</li>
-					{% endif %}
+					<li>
+						<code>{{ item }}</code>
+					</li>
 				{% endfor %}
 			</ul>
 		</div>
