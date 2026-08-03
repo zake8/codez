@@ -36,6 +36,7 @@ load_dotenv('../.env')
 DEVSTRAL_API_KEY = os.environ.get("DEVSTRAL_API_KEY")
 DEVSTRAL_API_URL = os.environ.get("DEVSTRAL_API_URL")
 GRADIENT_MODEL_ACCESS_KEY = os.environ.get("GRADIENT_MODEL_ACCESS_KEY")
+ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
 WRITE_PERMALOG = True
 PERMALOG_FN = "./code_assist_perma.log"
