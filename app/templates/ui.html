@@ -46,8 +46,8 @@
             </label>
           {% elif platform_choice == "anthropic" %}
             <label>
-              <!-- Anthropic platform placeholders - will be implemented later -->
-              <a href="#" target="_blank">Anthropic Models (coming soon)</a>
+              <a href="{{ url_for('anthmodlst') }}" target="_blank">Query Anthropic Models</a> ~ 
+              <a href="{{ url_for('anthmodcostlst') }}" target="_blank">Query Anthropic Models w/ costs</a>
             </label>
           {% endif %}
 
@@ -62,7 +62,7 @@
                   </option>
                    (default devstral-latest)
                 {% endfor %}
-              {% else %}
+              {% elif platform_choice == "digitalocean" %}
                 <!-- platform_choice == "digitalocean" -->
                 {% for m in dog_models %}
                   <option value="{{ m }}"
@@ -70,6 +70,15 @@
                     {{ m }}
                   </option>
                    (default anthropic-claude-opus-4.6)
+                {% endfor %}
+              {% elif platform_choice == "anthropic" %}
+                <!-- platform_choice == "anthropic" -->
+                {% for m in anthropic_models %}
+                  <option value="{{ m }}"
+                    {% if m == model %}selected{% endif %}>
+                    {{ m }}
+                  </option>
+                   (default claude-3-5-sonnet-20240620)
                 {% endfor %}
               {% endif %}
             </select>
