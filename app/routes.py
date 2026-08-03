@@ -871,6 +871,9 @@ def dog_info() -> Any:
 def anthmodlst() -> Any:
     """ Opens new page with a list of valid Anthropic model IDs available to this API key. """
     results = get_anthmodlst()
+    if results and not results[0].startswith("ANTHROPIC_API_KEY"):
+        results = sorted(results)
+    
     return render_template(
         "anthmodlst.html",
         results=results,
@@ -880,9 +883,14 @@ def anthmodlst() -> Any:
 def anthmodcostlst() -> Any:
     """ Opens new page with a list of valid Anthropic model IDs and costs available to this API key. """
     results = get_anthmodcostlst()
+    # Sort by total cost (input + output) descending, highest first
+    if results and not (len(results) == 1 and isinstance(results[0], tuple) and results[0][0].startswith("ANTHROPIC_API_KEY")):
+        results = sorted(results, key=lambda x: (x[1] + x[2]), reverse=True)
+    
     return render_template(
-        "anthmodlst.html",
+        "anthmodcostlst.html",
         results=results,
+        show_costs=True,
     )
 
 @app.route("/mismodcostlst", methods=["GET"])
