@@ -326,6 +326,7 @@ def ui() -> Any:
         include_md_txt=include_md_txt,
         devstral_models=devstral_models,
         dog_models=dog_models,
+        anthropic_models=anthropic_models,
         local_dir=local_dir,
         git_repo_url=git_repo_url,
         timeout=timeout,
