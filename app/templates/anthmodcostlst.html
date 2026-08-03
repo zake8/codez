@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>anthmodcostlst</title>
+		<style>
+			{{ pygments_css|safe }}
+			.cost-item {
+				margin: 0.5em 0;
+				line-height: 1.6;
+			}
+			.cost-item code {
+				font-size: 1em;
+			}
+		</style>
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+		<link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}">
+	</head>
+	<body>
+		<div class="app">
+			<h2>Available Anthropic Models (sorted by cost, highest first)</h2>
+			<ul>
+				{% for model_id, input_cost, output_cost in results %}
+					<li class="cost-item"><code>{{ model_id }}</code> — Input: ${{ "%.2f"|format(input_cost|float) }}/M, Output: ${{ "%.2f"|format(output_cost|float) }}/M, Total: ${{ "%.2f"|format((input_cost + output_cost)|float) }}/M</li>
+				{% endfor %}
+			</ul>
+		</div>
+	</body>
+</html>
