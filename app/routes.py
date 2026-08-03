@@ -874,7 +874,7 @@ def dog_info() -> Any:
 @app.route("/anthmodlst", methods=["GET"])
 def anthmodlst() -> Any:
     """ Opens new page with a list of valid Anthropic model IDs available to this API key. """
-    results = get_anthmodlst()
+    results = get_anthmodcostlst()
     return render_template(
         "anthmodlst.html",
         results=results,
