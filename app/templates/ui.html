@@ -60,7 +60,6 @@
                     {% if m == model %}selected{% endif %}>
                     {{ m }}
                   </option>
-                   (default devstral-latest)
                 {% endfor %}
               {% elif platform_choice == "digitalocean" %}
                 <!-- platform_choice == "digitalocean" -->
@@ -69,7 +68,6 @@
                     {% if m == model %}selected{% endif %}>
                     {{ m }}
                   </option>
-                   (default anthropic-claude-opus-4.6)
                 {% endfor %}
               {% elif platform_choice == "anthropic" %}
                 <!-- platform_choice == "anthropic" -->
@@ -78,7 +76,6 @@
                     {% if m == model %}selected{% endif %}>
                     {{ m }}
                   </option>
-                   (default claude-3-5-sonnet-20240620)
                 {% endfor %}
               {% endif %}
             </select>
