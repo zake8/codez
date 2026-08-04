@@ -29,7 +29,7 @@ from app.repo_scan import scan_repo_signals, scan_repo_signals, summarize_python
 from app.repo_scan import summarize_html_file, summarize_css_file
 from app.mistral_stuff import get_devstral_models, get_mismodlst, get_mismodcostlst
 from app.digitalocean_stuff import get_digitalocean_models, get_domodlst, anthropic_dog_info
-from app.anthropic_stuff import get_anthropic_models, get_anthmodlst, get_anthmodcostlst
+from app.anthropic_stuff import get_anthropic_models, get_anthmodlst, get_anthmodcostlst, ANTHROPIC_PRICING_MAP
 
 
 load_dotenv('../.env')
@@ -523,7 +523,7 @@ def call_dog(
             logging.warning("DigitalOcean Gradient API returned empty text")
             generated_text = "*Warning: DigitalOcean Gradient returned empty text*"
         finish_reason = response.choices[0].finish_reason or "unknown"
-        if finish_reason != "stop":
+        if finish_reason not in ("stop", "end_turn"):
             logging.warning(
                 f"call_dog: non-nominal finish_reason='{finish_reason}' "
                 f"model='{model}'"
