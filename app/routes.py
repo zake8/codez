@@ -692,6 +692,13 @@ def call_anthropic(
         max_context = 100_000
         logging.warning(f"Unknown model '{model}', using fallback context window of {max_context}")
 
+    # Models where adaptive thinking is ON by default — temperature is not accepted
+    # alongside active thinking; explicitly disable thinking so we can use temperature.
+    # claude-opus-5 supports thinking: disabled at effort<=high, which is the default.
+    # claude-fable-5 / claude-mythos-5 have thinking always-on; cannot disable — omit temperature.
+    THINKING_ALWAYS_ON = {"claude-fable-5", "claude-mythos-5", "claude-mythos-preview"}
+    THINKING_ON_BY_DEFAULT = {"claude-opus-5", "claude-sonnet-5"}
+
     try:
         # Rough token estimate
         prompt_tokens_est = len(prompt_blob) // 4
@@ -711,7 +718,6 @@ def call_anthropic(
         payload = {
             "model": model,
             "max_tokens": desired_max,
-            "temperature": temperature,
             "messages": [
                 {
                     "role": "user",
@@ -724,6 +730,17 @@ def call_anthropic(
                 else SYSTEM_PROMPT
             ),
         }
+
+        if model in THINKING_ALWAYS_ON:
+            # Cannot disable thinking or set temperature on these models; just leave both out.
+            logging.info(f"call_anthropic: model '{model}' has always-on thinking; omitting temperature")
+        elif model in THINKING_ON_BY_DEFAULT:
+            # Thinking is on by default but can be disabled — disable it so we can use temperature.
+            payload["thinking"] = {"type": "disabled"}
+            payload["temperature"] = temperature
+        else:
+            # Standard models: no thinking quirks, temperature works normally.
+            payload["temperature"] = temperature
 
         match timeout:
             case 45:
