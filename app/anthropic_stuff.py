@@ -37,26 +37,30 @@ load_dotenv('../.env')
 ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 
 # Known pricing for Anthropic models (per million tokens)
-# Source: https://www.anthropic.com/pricing
+# Source: https://www.anthropic.com/pricing  (last updated 2026-08)
 ANTHROPIC_PRICING_MAP = {
-    "claude-3-5-sonnet-20240620": (3.00, 15.00),    # $3 input, $15 output
-    "claude-3-opus-20240229": (15.00, 75.00),      # $15 input, $75 output
-    "claude-3-sonnet-20240229": (3.00, 15.00),    # $3 input, $15 output
-    "claude-3-haiku-20240307": (0.25, 1.25),       # $0.25 input, $1.25 output
-    "claude-2.1": (8.00, 24.00),                  # $8 input, $24 output
-    "claude-2.0": (8.00, 24.00),                  # $8 input, $24 output
-    "claude-instant-1.2": (0.80, 2.40),           # $0.80 input, $2.40 output
-    # Newer models from the sample
-    "claude-opus-5": (15.00, 75.00),              # Opus 5 pricing (estimated)
-    "claude-sonnet-5": (3.00, 15.00),             # Sonnet 5 pricing (estimated)
-    "claude-fable-5": (1.00, 5.00),               # Fable 5 pricing (estimated)
-    "claude-opus-4-8": (15.00, 75.00),            # Opus 4.8 pricing
-    "claude-opus-4-7": (15.00, 75.00),            # Opus 4.7 pricing
-    "claude-sonnet-4-6": (3.00, 15.00),           # Sonnet 4.6 pricing
-    "claude-opus-4-6": (15.00, 75.00),            # Opus 4.6 pricing
-    "claude-opus-4-5-20251101": (15.00, 75.00),  # Opus 4.5 pricing
-    "claude-haiku-4-5-20251001": (0.25, 1.25),   # Haiku 4.5 pricing
-    "claude-sonnet-4-5-20250929": (3.00, 15.00),  # Sonnet 4.5 pricing
+    # Current generation (2026)
+    "claude-fable-5": (10.00, 50.00),             # $10 input, $50 output
+    "claude-mythos-5": (10.00, 50.00),            # same as fable-5
+    "claude-opus-5": (5.00, 25.00),               # $5 input, $25 output
+    "claude-sonnet-5": (3.00, 15.00),             # $3 input, $15 output
+    "claude-haiku-4-5-20251001": (1.00, 5.00),    # $1 input, $5 output
+    "claude-haiku-4-5": (1.00, 5.00),             # alias
+    # Claude 4.x
+    "claude-opus-4-8": (15.00, 75.00),
+    "claude-opus-4-7": (15.00, 75.00),
+    "claude-sonnet-4-6": (3.00, 15.00),
+    "claude-opus-4-6": (15.00, 75.00),
+    "claude-opus-4-5-20251101": (15.00, 75.00),
+    "claude-sonnet-4-5-20250929": (3.00, 15.00),
+    # Legacy Claude 3.x
+    "claude-3-5-sonnet-20240620": (3.00, 15.00),
+    "claude-3-opus-20240229": (15.00, 75.00),
+    "claude-3-sonnet-20240229": (3.00, 15.00),
+    "claude-3-haiku-20240307": (0.25, 1.25),
+    "claude-2.1": (8.00, 24.00),
+    "claude-2.0": (8.00, 24.00),
+    "claude-instant-1.2": (0.80, 2.40),
 }
 
 # Fallback models if API listing fails
