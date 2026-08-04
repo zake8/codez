@@ -733,12 +733,11 @@ def call_anthropic(
 
         if model in THINKING_ALWAYS_ON:
             # Cannot disable thinking or set temperature on these models; just leave both out.
-            logging.info(f"call_anthropic: model '{model}' is THINKING_ALWAYS_ON; omitting temperature")
+            logging.info(f"call_anthropic: model '{model}' is THINKING_ALWAYS_ON; omitting thinking+temperature")
         elif model in THINKING_ON_BY_DEFAULT:
-            # Thinking is on by default but can be disabled — disable it so we can use temperature.
-            payload["thinking"] = {"type": "disabled"}
-            payload["temperature"] = temperature
-            logging.info(f"call_anthropic: model '{model}' is THINKING_ON_BY_DEFAULT; added thinking=disabled, temperature={temperature}")
+            # Thinking is on by default; temperature is deprecated on these models regardless
+            # of thinking state — omit both temperature and thinking block entirely.
+            logging.info(f"call_anthropic: model '{model}' is THINKING_ON_BY_DEFAULT; omitting temperature (deprecated for this model)")
         else:
             # Standard models: no thinking quirks, temperature works normally.
             payload["temperature"] = temperature
