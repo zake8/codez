@@ -799,20 +799,28 @@ def call_anthropic(
         return generated_text, cost, finish_reason
 
     except requests.HTTPError as e:
+        status_code = getattr(e.response, 'status_code', '?')
+        raw_body = ""
         try:
-            error_details = response.json() if response else {}
-            # Anthropic error body: {"type": "error", "error": {"type": "...", "message": "..."}}
+            raw_body = e.response.text if e.response is not None else ""
+        except Exception:
+            pass
+        logging.error(
+            f"call_anthropic: HTTP {status_code} from Anthropic "
+            f"(model={model}) — raw response body: {raw_body!r}"
+        )
+        # Try to extract a human-readable message from the JSON body
+        try:
+            error_details = e.response.json() if e.response is not None else {}
             err_obj = error_details.get("error", {})
             if isinstance(err_obj, dict):
-                err_type = err_obj.get("type", "unknown")
-                err_msg  = err_obj.get("message", str(e))
+                err_type = err_obj.get("type", "unknown_type")
+                err_msg  = err_obj.get("message", raw_body or str(e))
                 mess = f"Anthropic API error: [{err_type}] {err_msg}"
             else:
-                mess = f"Anthropic API error: {err_obj or str(e)}"
+                mess = f"Anthropic API error: {raw_body or str(e)}"
         except Exception:
             mess = f"Anthropic API error: {str(e)}"
-        logging.error(f"{mess} (model={model}, status={getattr(e.response, 'status_code', '?')})",
-                      exc_info=True)
         flash(mess)
         return mess, 0, "error"
     except Exception as e:
