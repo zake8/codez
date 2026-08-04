@@ -776,6 +776,10 @@ def call_anthropic(
             f"for a cost of ${cost}"
         )
 
+        if finish_reason != "stop":
+            logging.warning(
+                f"call_anthropic: non-nominal finish_reason='{finish_reason}' model='{model}' response={data}"
+            )
         return generated_text, cost, finish_reason
 
     except requests.HTTPError as e:

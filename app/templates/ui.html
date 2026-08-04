@@ -323,6 +323,10 @@
         <div class="finish-reason-warning">
           LLM return code was non-nominal: <strong>finish_reason = "{{ finish_reason }}"</strong>
           — response may be truncated; a diff or change block may be incomplete!
+          {% if finish_reason == "end_turn" %}
+          <br>
+          The model rejected the prompt. Please provide a more detailed or clear query.
+          {% endif %}
         </div>
         {% endif %}
         <div class="chat-message">
