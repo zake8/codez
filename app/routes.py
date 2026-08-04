@@ -698,17 +698,8 @@ def call_anthropic(
         remaining = max_context - prompt_tokens_est - 512
         desired_max = min(4096, max(512, remaining))
 
-        # Get pricing for this model
-        pricing_map = {
-            "claude-3-5-sonnet-20240620": (3.00, 15.00),
-            "claude-3-opus-20240229": (15.00, 75.00),
-            "claude-3-sonnet-20240229": (3.00, 15.00),
-            "claude-3-haiku-20240307": (0.25, 1.25),
-            "claude-2.1": (8.00, 24.00),
-            "claude-2.0": (8.00, 24.00),
-            "claude-instant-1.2": (0.80, 2.40),
-        }
-        input_rate, output_rate = pricing_map.get(model, (0.0, 0.0))
+        # Get pricing for this model from the shared pricing map
+        input_rate, output_rate = ANTHROPIC_PRICING_MAP.get(model, (0.0, 0.0))
 
         ANTHROPIC_API_BASE = "https://api.anthropic.com/v1"
         headers = {
