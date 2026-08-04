@@ -776,7 +776,7 @@ def call_anthropic(
             f"for a cost of ${cost}"
         )
 
-        if finish_reason not in ("stop", "end_turn"):
+        if finish_reason not in ("stop", "end_turn", "max_tokens"):
             logging.warning(
                 f"call_anthropic: non-nominal finish_reason='{finish_reason}' model='{model}' response={data}"
             )
