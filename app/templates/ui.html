@@ -319,13 +319,16 @@
             (prompt plus completion cost = ${{ cost }})
           {% endif %}
         </div>
-        {% if finish_reason and finish_reason != "stop" %}
+        {% if finish_reason and finish_reason not in ("stop", "end_turn") %}
         <div class="finish-reason-warning">
           LLM return code was non-nominal: <strong>finish_reason = "{{ finish_reason }}"</strong>
           — response may be truncated; a diff or change block may be incomplete!
-          {% if finish_reason == "end_turn" %}
+          {% if finish_reason == "max_tokens" %}
           <br>
-          The model rejected the prompt. Please provide a more detailed or clear query.
+          Output was cut off at the token limit. Try a shorter query or smaller file context.
+          {% elif finish_reason == "error" %}
+          <br>
+          The model returned an error. Check the response text above for details.
           {% endif %}
         </div>
         {% endif %}
