@@ -733,14 +733,22 @@ def call_anthropic(
 
         if model in THINKING_ALWAYS_ON:
             # Cannot disable thinking or set temperature on these models; just leave both out.
-            logging.info(f"call_anthropic: model '{model}' has always-on thinking; omitting temperature")
+            logging.info(f"call_anthropic: model '{model}' is THINKING_ALWAYS_ON; omitting temperature")
         elif model in THINKING_ON_BY_DEFAULT:
             # Thinking is on by default but can be disabled — disable it so we can use temperature.
             payload["thinking"] = {"type": "disabled"}
             payload["temperature"] = temperature
+            logging.info(f"call_anthropic: model '{model}' is THINKING_ON_BY_DEFAULT; added thinking=disabled, temperature={temperature}")
         else:
             # Standard models: no thinking quirks, temperature works normally.
             payload["temperature"] = temperature
+            logging.info(f"call_anthropic: model '{model}' standard; temperature={temperature}")
+
+        logging.info(
+            f"call_anthropic: sending to Anthropic — model={model}, "
+            f"max_tokens={desired_max}, "
+            f"payload_keys={list(payload.keys())}"
+        )
 
         match timeout:
             case 45:
@@ -792,11 +800,19 @@ def call_anthropic(
 
     except requests.HTTPError as e:
         try:
-            error_details = response.json() if response else {"error": str(e)}
-            mess = f"Anthropic API error: {error_details.get('error', str(e))}"
-        except:
+            error_details = response.json() if response else {}
+            # Anthropic error body: {"type": "error", "error": {"type": "...", "message": "..."}}
+            err_obj = error_details.get("error", {})
+            if isinstance(err_obj, dict):
+                err_type = err_obj.get("type", "unknown")
+                err_msg  = err_obj.get("message", str(e))
+                mess = f"Anthropic API error: [{err_type}] {err_msg}"
+            else:
+                mess = f"Anthropic API error: {err_obj or str(e)}"
+        except Exception:
             mess = f"Anthropic API error: {str(e)}"
-        logging.error(mess)
+        logging.error(f"{mess} (model={model}, status={getattr(e.response, 'status_code', '?')})",
+                      exc_info=True)
         flash(mess)
         return mess, 0, "error"
     except Exception as e:
