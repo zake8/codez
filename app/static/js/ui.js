@@ -142,7 +142,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Show spinner on any submit button click that is an "action=trigger" submit
   document.querySelectorAll('button[value="trigger"]').forEach(function(btn) {
     btn.addEventListener('click', function() {
-      if (spinner) spinner.style.display = 'inline';
+    const spinner = document.getElementById('spinner');
+    if (spinner) {
+      spinner.style.display = 'inline-block';
+    }
     });
   });
 });
