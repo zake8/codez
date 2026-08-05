@@ -316,7 +316,7 @@
         <div class="response-header">
           {{ model }} response 
           {% if cost %}
-            (prompt plus completion cost = ${{ cost }})
+            (prompt plus completion cost = ${{ cost|round(4) }})
           {% endif %}
         </div>
         {% if finish_reason and finish_reason not in ("stop", "end_turn") %}
