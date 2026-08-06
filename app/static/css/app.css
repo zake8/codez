@@ -29,6 +29,7 @@
   --box-bg: #001100;
   --box-border: #003300;
   --box-header-bg: #001800;
+  --box-content-bg: #001400; /* Slightly lighter than box-bg for readability */
   --code-bg: #001100;
   --button-bg: #002200;
   --text-color: #0f0;
@@ -56,6 +57,17 @@
 
 pre {
   background: var(--code-bg);
+}
+
+/* Green theme specific overrides for better readability */
+[data-theme="green"] .context-viewer details > pre,
+[data-theme="green"] .context-viewer details > textarea,
+[data-theme="green"] .response-actions {
+  background: var(--box-content-bg);
+}
+
+[data-theme="green"] .response-actions input[type="text"] {
+  background: var(--box-content-bg);
 }
 
 /* Theme toggle buttons container */
