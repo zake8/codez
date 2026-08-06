@@ -18,6 +18,10 @@
   --box-border: #444;
   --code-bg: #282c34;
   --button-bg: #3a3a3a;
+  --context-viewer-bg: #252525;
+  --context-viewer-content-bg: #2d2d2d;
+  --response-actions-bg: #252525;
+  --response-actions-input-bg: #2d2d2d;
   --button-text: #e0e0e0;
   --button-hover-bg: #4a4a4a;
   --box-header-bg: #252525;
@@ -68,6 +72,20 @@ pre {
 
 [data-theme="green"] .response-actions input[type="text"] {
   background: var(--box-content-bg);
+}
+
+[data-theme="dark"] .response-actions input[type="text"] {
+  background: var(--response-actions-input-bg);
+}
+
+/* Dark mode specific overrides for better readability */
+[data-theme="dark"] .context-viewer details {
+  background: var(--context-viewer-bg);
+}
+
+[data-theme="dark"] .context-viewer details > pre,
+[data-theme="dark"] .context-viewer details > textarea {
+  background: var(--context-viewer-content-bg);
 }
 
 /* Theme toggle buttons container */
