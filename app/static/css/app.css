@@ -37,12 +37,6 @@
   --button-hover-bg: #003300;
 }
 
-/* Apply theme variables */
-body {
-  background: var(--bg-color);
-  color: var(--text-color);
-}
-
 .app {
   color: var(--text-color);
 }
@@ -64,15 +58,6 @@ pre {
   background: var(--code-bg);
 }
 
-button {
-  background: var(--button-bg);
-  color: var(--button-text);
-}
-
-button:hover {
-  background: var(--button-hover-bg);
-}
-
 /* Theme toggle buttons container */
 .theme-toggle {
   display: flex;
@@ -88,13 +73,6 @@ button:hover {
 .theme-toggle button.active {
   border: 2px solid #00ff00;
   font-weight: bold;
-}
-
-body {
-  font-family: system-ui, sans-serif;
-  background: #fafafa;
-  margin: 0;
-  padding: 0;
 }
 
 .app {
@@ -211,21 +189,22 @@ select {
   white-space: pre-wrap;
   word-wrap: break-word;
 }
+
 .response-box {
   margin-top: 1rem;
-  border: 1px solid #d0d7de;
+  border: 1px solid var(--box-border);
   border-radius: 6px;
-  background: #ffffff;
+  background: var(--box-bg);
 }
 
 .response-header {
   padding: 0.5rem 0.75rem;
   font-weight: 600;
-  border-bottom: 1px solid #d0d7de;
-  background: #f6f8fa;
+  border-bottom: 1px solid var(--box-border);
+  background: var(--box-header-bg);
 }
 
-.response-box .chat-message {
+.chat-message {
   padding: 0.75rem;
 }
 
@@ -248,7 +227,7 @@ select {
 .finish-reason-warning {
   margin: 0;
   padding: 0.6rem 0.75rem;
-  background: #fff3cd;
+  background: var(--box-header-bg);
   border-bottom: 2px solid #e6a817;
   color: #7a4f00;
   font-weight: 600;
@@ -274,6 +253,13 @@ select {
 /* Hover / focus polish */
 .chat form button[type="submit"]:hover {
   background: #333;
+}
+
+/* Apply theme variables */
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+  font-family: system-ui, sans-serif;
 }
 
 /* Base button style for all buttons */
