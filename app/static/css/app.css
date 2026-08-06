@@ -1,3 +1,95 @@
+/* Theme: Light (default) */
+:root {
+  --bg-color: #fafafa;
+  --text-color: #000;
+  --box-bg: #ffffff;
+  --box-border: #d0d7de;
+  --box-header-bg: #f6f8fa;
+  --code-bg: #f6f8fa;
+  --button-bg: #fff;
+  --button-text: #000;
+  --button-hover-bg: #eee;
+}
+
+/* Theme: Dark */
+[data-theme="dark"] {
+  --bg-color: #1e1e1e;
+  --text-color: #e0e0e0;
+  --box-bg: #2d2d2d;
+  --box-border: #444;
+  --box-header-bg: #3a3a3a;
+  --code-bg: #282c34;
+  --button-bg: #3a3a3a;
+  --button-text: #e0e0e0;
+  --button-hover-bg: #4a4a4a;
+}
+
+/* Theme: Green (Matrix style) */
+[data-theme="green"] {
+  --bg-color: #0a1a0a;
+  --text-color: #0f0;
+  --box-bg: #001100;
+  --box-border: #003300;
+  --box-header-bg: #002200;
+  --code-bg: #001100;
+  --button-bg: #002200;
+  --button-text: #0f0;
+  --button-hover-bg: #003300;
+}
+
+/* Apply theme variables */
+body {
+  background: var(--bg-color);
+  color: var(--text-color);
+}
+
+.app {
+  color: var(--text-color);
+}
+
+.response-box {
+  border: 1px solid var(--box-border);
+  background: var(--box-bg);
+}
+
+.response-header {
+  background: var(--box-header-bg);
+}
+
+.chat-message {
+  color: var(--text-color);
+}
+
+pre {
+  background: var(--code-bg);
+}
+
+button {
+  background: var(--button-bg);
+  color: var(--button-text);
+}
+
+button:hover {
+  background: var(--button-hover-bg);
+}
+
+/* Theme toggle buttons container */
+.theme-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.theme-toggle button {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+.theme-toggle button.active {
+  border: 2px solid #00ff00;
+  font-weight: bold;
+}
+
 body {
   font-family: system-ui, sans-serif;
   background: #fafafa;

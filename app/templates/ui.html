@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8">
   <title>Repo-level Codez Assistant</title>
@@ -17,6 +17,12 @@
     <header>
       <h1>Repo-level Devstral Assistant</h1>
     </header>
+
+<section class="theme-toggle">
+  <button type="button" class="theme-btn" data-theme="light" onclick="setTheme('light')">Light</button>
+  <button type="button" class="theme-btn" data-theme="dark" onclick="setTheme('dark')">Dark</button>
+  <button type="button" class="theme-btn" data-theme="green" onclick="setTheme('green')">Green</button>
+</section>
 
     <form method="POST" action="{{ url_for('ui') }}">
       <!-- SETTINGS -->      <section class="settings">

@@ -91,6 +91,20 @@ function escHtml(str) {
 
 // ── End directory browser ────────────────────────────────────────────────────
 
+function setTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  localStorage.setItem('theme', theme);
+
+  // Update active button state
+  document.querySelectorAll('.theme-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.theme === theme) {
+      btn.classList.add('active');
+    }
+  });
+}
+
+
 function grepPy() {
   const searchValue = encodeURIComponent(document.getElementById('grep_search').value);
   const button = event.target;
@@ -138,6 +152,10 @@ document.addEventListener('DOMContentLoaded', function() {
   if (responseSection && chatMessage && chatMessage.textContent.trim().length > 0) {
     responseSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
+
+  // Load saved theme or use default
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  setTheme(savedTheme);
 
   // Show spinner on any submit button click that is an "action=trigger" submit
   document.querySelectorAll('button[value="trigger"]').forEach(function(btn) {
