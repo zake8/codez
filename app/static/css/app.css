@@ -20,6 +20,7 @@
   --button-bg: #3a3a3a;
   --button-text: #e0e0e0;
   --button-hover-bg: #4a4a4a;
+  --box-header-bg: #252525;
 }
 
 /* Theme: Green (Matrix style) */
@@ -27,7 +28,7 @@
   --bg-color: #0a1a0a;
   --box-bg: #001100;
   --box-border: #003300;
-  --box-header-bg: #002200;
+  --box-header-bg: #001800;
   --code-bg: #001100;
   --button-bg: #002200;
   --text-color: #0f0;
@@ -305,7 +306,7 @@ button:hover {
   overflow-y: auto;
   border: 1px solid #ccc;
   padding: 0.5rem;
-  background: #fafafa;
+  background: var(--box-bg);
   font-family: monospace;
   font-size: 0.9rem;
 }
