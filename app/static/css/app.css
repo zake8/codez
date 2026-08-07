@@ -91,8 +91,7 @@ pre {
 /* Theme toggle buttons container */
 .theme-toggle {
   display: flex;
-  gap: 0.5rem;
-  margin-bottom: 1rem;
+  gap: 0.3rem;
 }
 
 .theme-toggle button {
@@ -306,6 +305,26 @@ button {
 
 button:hover {
   background: #eee;
+}
+
+/* Header layout with theme buttons */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.header-title {
+  flex: 1;
+  min-width: 300px;
+}
+
+.header-controls {
+  display: flex;
+  gap: 0.5rem;
 }
 
 /* Style for refill button - less prominent */

@@ -15,14 +15,17 @@
 
     <!-- HEADER -->
     <header>
-      <h1>Repo-level Devstral Assistant</h1>
-    </header>
-
-<section class="theme-toggle">
-  <button type="button" class="theme-btn" data-theme="light" onclick="setTheme('light')">Light</button>
-  <button type="button" class="theme-btn" data-theme="dark" onclick="setTheme('dark')">Dark</button>
-  <button type="button" class="theme-btn" data-theme="green" onclick="setTheme('green')">Green</button>
-</section>
+        <div class="header-title">
+          <h1>Repo-level Devstral Assistant</h1>
+        </div>
+        <div class="header-controls">
+          <section class="theme-toggle">
+            <button type="button" class="theme-btn" data-theme="light" onclick="setTheme('light')">Light</button>
+            <button type="button" class="theme-btn" data-theme="dark" onclick="setTheme('dark')">Dark</button>
+            <button type="button" class="theme-btn" data-theme="green" onclick="setTheme('green')">Green</button>
+          </section>
+        </div>
+      </header>
 
     <form method="POST" action="{{ url_for('ui') }}">
       <!-- SETTINGS -->      <section class="settings">
