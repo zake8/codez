@@ -113,16 +113,14 @@
              (default 0.2) (recommended 0.0 to 0.3)
           </label>
 
-          {% if platform_choice == "mistral" %}
-            <label>
-              <strong>Timeout:</strong> <select name="timeout" id="timeout-select" class="timeout-select">
-                <option value="45" {% if timeout == 45 %}selected{% endif %}>45 seconds</option>
-                <option value="90" {% if timeout == 90 %}selected{% endif %}>90 seconds</option>
-              </select>
-               <span class="timeout-hint">(maybe pick different model)</span>
-            </label>
-          {% endif %}
-
+          <label>
+            <strong>Timeout:</strong> <select name="timeout" id="timeout-select" class="timeout-select">
+              <option value="45" {% if timeout == 45 %}selected{% endif %}>45 seconds</option>
+              <option value="90" {% if timeout == 90 %}selected{% endif %}>90 seconds</option>
+              <option value="300" {% if timeout == 300 %}selected{% endif %}>300 seconds</option>
+            </select>
+            <span class="timeout-hint">(maybe pick different model)</span>
+          </label>
           <hr>
           <label>
             <strong>Local directory:</strong>

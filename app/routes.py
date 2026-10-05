@@ -108,7 +108,7 @@ def ui() -> Any:
     save_responses = False  # default False
     auto_clean_temp = False  # default False
     custom_system_prompt = ""  # should start blank
-    timeout = 45  # 45 or 90 # default 45
+    timeout = 45  # 45 or 90 or 180 or 360 # default 45
     file_tree: Dict[str, Any] = {}  # will need to refresh
     cost = 0.0  # should start zero
     git_repo_url = ""  # should start blank
@@ -606,6 +606,10 @@ def call_devstral(
             timeout_values = (6, 39)
         case 90:
             timeout_values = (13, 77)
+        case 180:
+            timeout_values = (25, 155)
+        case 360:
+            timeout_values = (40, 320)
         case _:
             timeout_values = (5, 30)
     try:
@@ -754,6 +758,10 @@ def call_anthropic(
                 timeout_values = (6, 39)
             case 90:
                 timeout_values = (13, 77)
+            case 180:
+                timeout_values = (25, 155)
+            case 360:
+                timeout_values = (40, 320)
             case _:
                 timeout_values = (5, 30)
 
