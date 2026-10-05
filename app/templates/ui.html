@@ -117,7 +117,8 @@
             <strong>Timeout:</strong> <select name="timeout" id="timeout-select" class="timeout-select">
               <option value="45" {% if timeout == 45 %}selected{% endif %}>45 seconds</option>
               <option value="90" {% if timeout == 90 %}selected{% endif %}>90 seconds</option>
-              <option value="300" {% if timeout == 300 %}selected{% endif %}>300 seconds</option>
+              <option value="180" {% if timeout == 180 %}selected{% endif %}>180 seconds</option>
+              <option value="360" {% if timeout == 360 %}selected{% endif %}>360 seconds</option>
             </select>
             <span class="timeout-hint">(maybe pick different model)</span>
           </label>
