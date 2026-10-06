@@ -46,6 +46,14 @@ LAST_PROMPT_FN = "./last_prompt.txt"
 SERVER_HOSTNAME = socket.gethostname()
 SERVER_CWD = os.getcwd()
 
+ANTHROPIC_TEMPERATURE_DEPRECATED = {
+    "claude-opus-5",
+    "claude-sonnet-5",
+    "claude-sonnet-5-5",
+    "claude-haiku-4-5",
+    "claude-haiku-4-5-20251001",
+}
+
 SYSTEM_PROMPT = """Do not introduce new layers, frameworks, or abstractions. 
 Follow existing naming, error-handling, and logging conventions. 
 If the task cannot be completed within the stated scope or allowed files, 
@@ -314,6 +322,10 @@ def ui() -> Any:
     logging.info(f"Static .css URL test: {url_for('static', filename='css/app.css')}")
     return render_template(
         "ui.html",
+        temperature_deprecated=(
+            platform_choice == "anthropic"
+            and model in ANTHROPIC_TEMPERATURE_DEPRECATED
+        ),
         rendered_html=rendered_html,
         cost=cost,
         pygments_css=PYGMENTS_CSS,
@@ -696,13 +708,13 @@ def call_anthropic(
         max_context = 100_000
         logging.warning(f"Unknown model '{model}', using fallback context window of {max_context}")
 
-    # Models where adaptive thinking is ON by default — temperature is not accepted
-    # alongside active thinking; explicitly disable thinking so we can use temperature.
-    # claude-opus-5 supports thinking: disabled at effort<=high, which is the default.
-    # claude-fable-5 / claude-mythos-5 have thinking always-on; cannot disable — omit temperature.
+    # Models where temperature is not accepted by the Anthropic API.
+    # THINKING_ALWAYS_ON: thinking cannot be disabled, temperature cannot be set.
+    # TEMPERATURE_DEPRECATED: Anthropic has deprecated the temperature parameter
+    #   for these models regardless of thinking state — omit it entirely.
+    # Add new models here as Anthropic deprecates temperature for them.
     THINKING_ALWAYS_ON = {"claude-fable-5", "claude-mythos-5", "claude-mythos-preview"}
-    THINKING_ON_BY_DEFAULT = {"claude-opus-5", "claude-sonnet-5"}
-
+    # ANTHROPIC_TEMPERATURE_DEPRECATED is defined at module level
     try:
         # Rough token estimate
         prompt_tokens_est = len(prompt_blob) // 4
@@ -738,10 +750,8 @@ def call_anthropic(
         if model in THINKING_ALWAYS_ON:
             # Cannot disable thinking or set temperature on these models; just leave both out.
             logging.info(f"call_anthropic: model '{model}' is THINKING_ALWAYS_ON; omitting thinking+temperature")
-        elif model in THINKING_ON_BY_DEFAULT:
-            # Thinking is on by default; temperature is deprecated on these models regardless
-            # of thinking state — omit both temperature and thinking block entirely.
-            logging.info(f"call_anthropic: model '{model}' is THINKING_ON_BY_DEFAULT; omitting temperature (deprecated for this model)")
+        elif model in ANTHROPIC_TEMPERATURE_DEPRECATED:
+            logging.info(f"call_anthropic: model '{model}' is TEMPERATURE_DEPRECATED; omitting temperature")
         else:
             # Standard models: no thinking quirks, temperature works normally.
             payload["temperature"] = temperature

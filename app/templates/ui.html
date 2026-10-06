@@ -90,6 +90,14 @@
             </select>
           </label>
 
+          {% if temperature_deprecated %}
+          <label>
+            <strong>Temperature:</strong>
+            <em>temperature is deprecated for this model — parameter will not be sent.</em>
+            {# still carry the last value forward so switching back to a standard model restores it #}
+            <input type="hidden" name="temperature" value="{{ temperature|default(0.2) }}">
+          </label>
+          {% else %}
           <label>
             <strong>Temperature:</strong>
             <input
@@ -112,6 +120,7 @@
             >
              (default 0.2) (recommended 0.0 to 0.3)
           </label>
+          {% endif %}
 
           <label>
             <strong>Timeout:</strong> <select name="timeout" id="timeout-select" class="timeout-select">
