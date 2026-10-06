@@ -41,9 +41,12 @@ ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 ANTHROPIC_PRICING_MAP = {
     # Current generation (2026)
     "claude-fable-5": (10.00, 50.00),             # $10 input, $50 output
+    "claude-fable-5-1": (10.00, 50.00),           # versioned alias
     "claude-mythos-5": (10.00, 50.00),            # same as fable-5
     "claude-opus-5": (5.00, 25.00),               # $5 input, $25 output
+    "claude-opus-5-5": (5.00, 25.00),             # versioned alias
     "claude-sonnet-5": (3.00, 15.00),             # $3 input, $15 output
+    "claude-sonnet-5-5": (3.00, 15.00),           # versioned alias
     "claude-haiku-4-5-20251001": (1.00, 5.00),    # $1 input, $5 output
     "claude-haiku-4-5": (1.00, 5.00),             # alias
     # Claude 4.x
