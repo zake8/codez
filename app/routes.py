@@ -786,10 +786,23 @@ def call_anthropic(
 
         # Extract the generated text
         content = data.get("content", [])
-        if content:
-            generated_text = content[0].get("text", "")
-        else:
-            generated_text = "*Warning: No text returned by Anthropic*"
+
+        # Log content block types for diagnostics (thinking blocks, text blocks, etc.)
+        block_types = [blk.get("type", "unknown") for blk in content]
+        logging.info(f"call_anthropic: content block types received: {block_types}")
+        # Find the first text block; newer models (extended thinking) may return
+        # a leading 'thinking' block before the 'text' block.
+        generated_text = ""
+        for blk in content:
+            if blk.get("type") == "text":
+                generated_text = blk.get("text", "")
+                break
+        if not generated_text:
+            logging.warning(
+                f"call_anthropic: no text block found in content for model='{model}'; "
+                f"block_types={block_types}"
+            )
+            generated_text = "*Warning: No text block returned by Anthropic*"
 
         # Extract usage and cost
         usage = data.get("usage", {})
