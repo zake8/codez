@@ -1,0 +1,6 @@
+claude-sonnet-5-5 response (prompt plus completion cost = $0.0844)
+
+LLM return code was non-nominal: finish_reason = "max_tokens" — response may be truncated; a diff or change block may be incomplete!
+Output was cut off at the token limit. Try a shorter query or smaller file context. 
+
+<there is a response in the response box, but it gets truncated at the end>
