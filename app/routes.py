@@ -555,10 +555,6 @@ def call_dog(
           + completion_tokens * output_rate
         ) / 1_000_000
         logging.info(
-            prompt_tokens * input_rate
-          + completion_tokens * output_rate
-        ) / 1_000_000
-        logging.info(
             f"call_dog: prompt_tokens_est={prompt_tokens_est} actual={prompt_tokens}, "
             f"max_tokens_cap={desired_max}, finish_reason='{finish_reason}', "
             f"{completion_tokens} completion, "
@@ -877,7 +873,8 @@ def call_anthropic(
             pass
         logging.error(
             f"call_anthropic: HTTP {status_code} from Anthropic "
-            f"(model={model}) — raw response body: {raw_body!r}"
+            f"(model={model}) — raw response body: {raw_body!r}",
+            exc_info=True,
         )
         # Try to extract a human-readable message from the JSON body
         try:
