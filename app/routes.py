@@ -54,6 +54,8 @@ ANTHROPIC_TEMPERATURE_DEPRECATED = {
     "claude-haiku-4-5-20251001",
 }
 
+MAX_OUTPUT_TOKENS = 16_000
+
 SYSTEM_PROMPT = """Do not introduce new layers, frameworks, or abstractions. 
 Follow existing naming, error-handling, and logging conventions. 
 If the task cannot be completed within the stated scope or allowed files, 
@@ -512,7 +514,12 @@ def call_dog(
         # Rough token estimate
         prompt_tokens_est = len(prompt_blob) // 4
         remaining = max_context - prompt_tokens_est - 512
-        desired_max = min(4096, max(512, remaining))
+        desired_max = min(MAX_OUTPUT_TOKENS, max(512, remaining))
+        logging.info(
+            f"call_dog: prompt_tokens_est={prompt_tokens_est}, "
+            f"max_context={max_context}, max_tokens_sending={desired_max}, "
+            f"model={model}"
+        )
         
         # logging.info(f'func call_dog doing chat completion against model {model}.')  # diag 6/20/26
         response = client.chat.completions.create(
@@ -543,13 +550,17 @@ def call_dog(
         input_rate, output_rate = get_rates(model)
         prompt_tokens = response.usage.prompt_tokens
         completion_tokens = response.usage.completion_tokens
-        # total_tokens = response.usage.total_tokens
         cost = (
             prompt_tokens * input_rate
           + completion_tokens * output_rate
         ) / 1_000_000
         logging.info(
-            f"DigitalOcean Gradient API used {prompt_tokens} prompt, "
+            prompt_tokens * input_rate
+          + completion_tokens * output_rate
+        ) / 1_000_000
+        logging.info(
+            f"call_dog: prompt_tokens_est={prompt_tokens_est} actual={prompt_tokens}, "
+            f"max_tokens_cap={desired_max}, finish_reason='{finish_reason}', "
             f"{completion_tokens} completion, "
             f"{prompt_tokens + completion_tokens} total tokens, "
             f"for a cost of ${cost}"
@@ -593,7 +604,12 @@ def call_devstral(
     else:
         max_context = 252 * 1024
     remaining = max_context - prompt_tokens_est - 512
-    desired_max = min(4096, max(512, remaining)) ### need to check these numbers more! (top was 16000)
+    desired_max = min(MAX_OUTPUT_TOKENS, max(512, remaining))
+    logging.info(
+        f"call_devstral: prompt_tokens_est={prompt_tokens_est}, "
+        f"max_context={max_context}, max_tokens_sending={desired_max}, "
+        f"model={model}"
+    )
     payload = {
         "model": model,
         "temperature": temperature,
@@ -656,11 +672,13 @@ def call_devstral(
           + completion_tokens * output_rate
         ) / 1_000_000
         logging.info(
-            f"Devstral API used {prompt_tokens} prompt, "
+            f"call_devstral: prompt_tokens_est={prompt_tokens_est} actual={prompt_tokens}, "
+            f"max_tokens_cap={desired_max}, finish_reason='{finish_reason}', "
             f"{completion_tokens} completion, "
             f"{prompt_tokens + completion_tokens} total tokens, "
             f"for a cost of ${cost}"
         )
+
         return generated_text, cost, finish_reason
     except requests.HTTPError:
         mess = f"Devstral API error response\n{response.text if response else 'No response received'}"
@@ -719,7 +737,22 @@ def call_anthropic(
         # Rough token estimate
         prompt_tokens_est = len(prompt_blob) // 4
         remaining = max_context - prompt_tokens_est - 512
-        desired_max = min(4096, max(512, remaining))
+        # Per-model hard output-token limits enforced by Anthropic.
+        # Newer models support up to MAX_OUTPUT_TOKENS (16 000).
+        # Claude 3.5 Sonnet 20240620 is capped at 8 192 by the API.
+        # Claude 3.x (haiku/sonnet/opus) and Claude 2.x/instant are capped at 4 096.
+        if model in ("claude-3-5-sonnet-20240620",):
+            model_output_cap = 8_192
+        elif any(tag in model for tag in ("claude-3-", "claude-2.", "claude-instant")):
+            model_output_cap = 4_096
+        else:
+            model_output_cap = MAX_OUTPUT_TOKENS
+        desired_max = min(model_output_cap, max(512, remaining))
+        logging.info(
+            f"call_anthropic: prompt_tokens_est={prompt_tokens_est}, "
+            f"max_context={max_context}, model_output_cap={model_output_cap}, "
+            f"max_tokens_sending={desired_max}, model={model}"
+        )
 
         # Get pricing for this model from the shared pricing map
         input_rate, output_rate = ANTHROPIC_PRICING_MAP.get(model, (0.0, 0.0))
@@ -816,13 +849,20 @@ def call_anthropic(
         finish_reason = data.get("stop_reason", "stop")
 
         logging.info(
-            f"Anthropic API used {prompt_tokens} prompt, "
+            f"call_anthropic: prompt_tokens_est={prompt_tokens_est} actual={prompt_tokens}, "
+            f"max_tokens_cap={desired_max}, finish_reason='{finish_reason}', "
             f"{completion_tokens} completion, "
             f"{prompt_tokens + completion_tokens} total tokens, "
             f"for a cost of ${cost}"
         )
 
-        if finish_reason not in ("stop", "end_turn", "max_tokens"):
+        if finish_reason == "max_tokens":
+            logging.warning(
+                f"call_anthropic: output truncated at max_tokens={desired_max} "
+                f"(model_output_cap={model_output_cap}) for model='{model}'; "
+                f"response is likely incomplete"
+            )
+        elif finish_reason not in ("stop", "end_turn"):
             logging.warning(
                 f"call_anthropic: non-nominal finish_reason='{finish_reason}' model='{model}' response={data}"
             )
